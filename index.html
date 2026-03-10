@@ -310,6 +310,46 @@ canvas { max-width: 100%; }
 .correlation-note { background: rgba(107,78,204,0.05); border: 1px solid rgba(107,78,204,0.18); border-left: 3px solid var(--purple); padding: 10px 14px; font-size: 11.5px; color: var(--text2); margin-bottom: 14px; }
 .correlation-note strong { color: var(--purple); }
 
+/* IMPROVEMENT + PREDICTIVE */
+.tracker-toolbar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; align-items: center; }
+.tracker-toolbar select, .tracker-toolbar button {
+  background: #FFFFFF; border: 1px solid var(--border2); color: var(--text2);
+  font-family: var(--mono); font-size: 10.5px; padding: 6px 10px; border-radius: var(--r);
+}
+.tracker-toolbar button { cursor: pointer; }
+.tracker-toolbar button:hover { border-color: var(--green); color: var(--green); }
+.tracker-table-wrap { overflow-x: auto; border: 1px solid var(--border); background: #FFFFFF; }
+.tracker-table { width: 100%; border-collapse: collapse; min-width: 880px; }
+.tracker-table th {
+  text-align: left; padding: 8px 10px; background: #F0F3FA; color: var(--text3);
+  font-family: var(--disp); font-size: 9.5px; letter-spacing: 0.1em; text-transform: uppercase;
+  border-bottom: 1px solid var(--border);
+}
+.tracker-table td { padding: 8px 10px; border-bottom: 1px solid var(--border); color: var(--text2); font-size: 11px; vertical-align: top; }
+.tracker-table tr:last-child td { border-bottom: none; }
+.status-pill {
+  display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 9px;
+  font-family: var(--disp); letter-spacing: 0.08em; text-transform: uppercase; font-weight: 700;
+}
+.status-pill.low, .status-pill.closed, .status-pill.done { background: rgba(95,135,0,0.14); color: var(--green); }
+.status-pill.medium, .status-pill.in-progress { background: rgba(204,116,0,0.15); color: var(--amber); }
+.status-pill.high, .status-pill.open, .status-pill.delayed { background: rgba(204,26,43,0.12); color: var(--red); }
+.progress-track { width: 100%; background: #E8EDF8; height: 8px; border-radius: 999px; overflow: hidden; margin-top: 4px; }
+.progress-fill { height: 100%; border-radius: 999px; }
+.progress-fill.good { background: var(--green); }
+.progress-fill.warn { background: var(--amber); }
+.progress-fill.bad  { background: var(--red); }
+.metric-mini-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-bottom: 12px; }
+.metric-mini {
+  border: 1px solid var(--border); background: #FFFFFF; border-left: 3px solid var(--cyan); padding: 10px 12px;
+}
+.metric-mini .lbl { font-size: 9.5px; color: var(--text3); font-family: var(--disp); letter-spacing: 0.08em; text-transform: uppercase; }
+.metric-mini .val { font-size: 22px; font-family: var(--mono); color: var(--text); line-height: 1.1; margin-top: 4px; }
+.metric-mini .sub { font-size: 10px; color: var(--text3); }
+.anomaly-list { margin-top: 10px; display: grid; gap: 8px; }
+.anomaly-item { background: #F7F9FE; border: 1px solid var(--border); border-left: 3px solid var(--amber); padding: 8px 10px; font-size: 11px; color: var(--text2); }
+.anomaly-item.high { border-left-color: var(--red); }
+.anomaly-item.low { border-left-color: var(--green); }
 
 /* ── CHART WRAPPER — auto-height responsive ── */
 .chart-wrap { position: relative; width: 100%; }
@@ -358,7 +398,7 @@ canvas { max-width: 100%; }
   </div>
   <div class="header-right">
     <div class="status-dot"></div>
-    <div class="status-txt">Live WMS</div>
+    <div class="status-txt">Manual WMS</div>
     <div class="date-badge">09 MAR 2026</div>
   </div>
 </div>
@@ -419,6 +459,8 @@ canvas { max-width: 100%; }
   <button class="tab-btn" onclick="switchTab(4)"><span class="tab-num">05</span>Relationships</button>
   <button class="tab-btn" onclick="switchTab(5)"><span class="tab-num">06</span>Risk Detection</button>
   <button class="tab-btn" onclick="switchTab(6)"><span class="tab-num">07</span>Strategy Insights</button>
+  <button class="tab-btn" onclick="switchTab(7)"><span class="tab-num">08</span>Data Sources</button>
+  <button class="tab-btn" onclick="switchTab(8)"><span class="tab-num">09</span>Improvement &amp; Predictive</button>
 </div>
 
 <!-- ═════════════════════════════════════════════════════
@@ -629,7 +671,7 @@ canvas { max-width: 100%; }
     <div class="chart-card accent-red">
       <div class="chart-title">On-Time GR Rate by Month</div>
       <div class="chart-sub">Scheduled vs Confirmed arrival · target 80%</div>
-      <div class="chart-wrap ar-med"><canvas id="chart-gr-bar"></canvas></div>
+      <div class="chart-wrap ar-med" style="height: auto;"><canvas id="chart-gr-bar"></canvas></div>
     </div>
     <div class="chart-card">
       <div class="chart-title">SI → Load SLA Compliance</div>
@@ -918,6 +960,152 @@ canvas { max-width: 100%; }
   </div>
 </div>
 
+<!-- TAB 8: DATA SOURCES -->
+<div class="tab-content" id="tab-7">
+  <div class="sec-head">
+    <div class="sec-title">Analysis Data Sources</div>
+    <div class="sec-sub">Reference resources used for this dashboard analysis</div>
+    <div class="sec-line"></div>
+  </div>
+  <div class="chart-card accent-cyan">
+    <div class="chart-title">Source Files</div>
+    <div class="chart-sub">Listed as provided in the project request</div>
+    <div style="display:grid; grid-template-columns: 1fr; gap: 8px;">
+      <div class="rs-item"><div class="rs-body"><div class="rs-text">20260309_ARRIVAL 2025_CAK_SNYY</div></div></div>
+      <div class="rs-item"><div class="rs-body"><div class="rs-text">20260309_ARRIVAL 2026_CAK_SNYY</div></div></div>
+      <div class="rs-item"><div class="rs-body"><div class="rs-text">20260309_LOCATION MASTER_CAK_SNYY</div></div></div>
+      <div class="rs-item"><div class="rs-body"><div class="rs-text">20260309_PRODUCT MASTER_CAK_SNYY</div></div></div>
+      <div class="rs-item"><div class="rs-body"><div class="rs-text">20260309_SHIPPING 2025_CAK_SNYY</div></div></div>
+      <div class="rs-item"><div class="rs-body"><div class="rs-text">20260309_SHIPPING 2026_CAK_SNYY</div></div></div>
+      <div class="rs-item"><div class="rs-body"><div class="rs-text">20260309_STOCK REPORT_CAK_SNYY</div></div></div>
+      <div class="rs-item"><div class="rs-body"><div class="rs-text">20260309_STOCK CAPACITY_CAK_SNYY</div></div></div>
+      <div class="rs-item"><div class="rs-body"><div class="rs-text">20260309_Sub Inventory Master_CAK_SNYY</div></div></div>
+      <div class="rs-item"><div class="rs-body"><div class="rs-text">20260309_Turnover Rate 2025_CAK_SNYY</div></div></div>
+      <div class="rs-item"><div class="rs-body"><div class="rs-text">20260309_Turnover Rate 2026_CAK_SNYY</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 9: IMPROVEMENT & PREDICTIVE -->
+<div class="tab-content" id="tab-8">
+  <div class="sec-head">
+    <div class="sec-title">Improvement &amp; Predictive Monitoring</div>
+    <div class="sec-sub">Operational progress tracking, bottleneck analysis, risk watch, and forward-looking analytics</div>
+    <div class="sec-line"></div>
+  </div>
+
+  <div class="chart-card accent-teal" style="margin-bottom:16px;">
+    <div class="chart-title">Improvement Tracker</div>
+    <div class="chart-sub">Interactive action tracker with owner, status, due date, and progress indicators</div>
+    <div class="tracker-toolbar">
+      <label class="filter-label" for="imp-status-filter">Status</label>
+      <select id="imp-status-filter">
+        <option value="ALL">All</option>
+        <option value="Open">Open</option>
+        <option value="In Progress">In Progress</option>
+        <option value="Delayed">Delayed</option>
+        <option value="Done">Done</option>
+      </select>
+      <button id="imp-sort-progress" type="button">Sort by Progress</button>
+    </div>
+    <div class="tracker-table-wrap">
+      <table class="tracker-table">
+        <thead>
+          <tr>
+            <th>Issue</th>
+            <th>Root Cause</th>
+            <th>Action Plan</th>
+            <th>Owner</th>
+            <th>Status</th>
+            <th>Progress</th>
+            <th>Due Date</th>
+          </tr>
+        </thead>
+        <tbody id="improvement-tracker-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="chart-card accent-amber">
+      <div class="chart-title">Process Bottleneck Analysis</div>
+      <div class="chart-sub">Average delay by process step (hours), largest bottleneck auto-highlighted</div>
+      <div class="chart-wrap ar-med"><canvas id="chart-bottleneck"></canvas></div>
+    </div>
+    <div class="chart-card accent-cyan">
+      <div class="chart-title">Before vs After Audit Performance</div>
+      <div class="chart-sub">Pre-Audit, Post-Audit, and Current performance comparison</div>
+      <div class="chart-wrap ar-med"><canvas id="chart-audit-compare"></canvas></div>
+    </div>
+  </div>
+
+  <div class="gap-sm"></div>
+
+  <div class="chart-card" style="margin-bottom:16px;">
+    <div class="chart-title">Inventory Health Indicators</div>
+    <div class="chart-sub">Calculated from filtered inventory flow and aging distribution</div>
+    <div class="metric-mini-grid">
+      <div class="metric-mini">
+        <div class="lbl">Slow Moving Ratio</div>
+        <div class="val" id="ih-slow-moving">0.0%</div>
+        <div class="sub">Stock aged over 90 days</div>
+      </div>
+      <div class="metric-mini">
+        <div class="lbl">Dead Stock Ratio (&gt;180d)</div>
+        <div class="val" id="ih-dead-stock">0.0%</div>
+        <div class="sub">Aged buckets 181-365d + &gt;365d</div>
+      </div>
+      <div class="metric-mini">
+        <div class="lbl">Inventory Velocity</div>
+        <div class="val" id="ih-velocity">0.00x</div>
+        <div class="sub">Outbound / average stock level</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-3">
+    <div class="chart-card accent-red">
+      <div class="chart-title">Risk Monitoring Panel</div>
+      <div class="chart-sub">Score-based risk status for audit monitoring</div>
+      <div class="metric-mini-grid" style="grid-template-columns:1fr;">
+        <div class="metric-mini">
+          <div class="lbl">Aging Risk</div>
+          <div class="val" id="risk-aging-level">LOW</div>
+          <div class="sub" id="risk-aging-score">Score: 0/100</div>
+        </div>
+        <div class="metric-mini">
+          <div class="lbl">Capacity Risk</div>
+          <div class="val" id="risk-capacity-level">LOW</div>
+          <div class="sub" id="risk-capacity-score">Score: 0/100</div>
+        </div>
+        <div class="metric-mini">
+          <div class="lbl">Data Accuracy Risk</div>
+          <div class="val" id="risk-accuracy-level">LOW</div>
+          <div class="sub" id="risk-accuracy-score">Score: 0/100</div>
+        </div>
+      </div>
+    </div>
+    <div class="chart-card accent-amber">
+      <div class="chart-title">Capacity Forecast</div>
+      <div class="chart-sub">Projected space utilization trend (next 6 periods)</div>
+      <div class="chart-wrap ar-med"><canvas id="chart-capacity-forecast"></canvas></div>
+    </div>
+    <div class="chart-card accent-purple">
+      <div class="chart-title">Turnover Projection</div>
+      <div class="chart-sub">Projected inventory turnover using trend continuation</div>
+      <div class="chart-wrap ar-med"><canvas id="chart-turnover-proj"></canvas></div>
+    </div>
+  </div>
+
+  <div class="gap-sm"></div>
+  <div class="chart-card accent-red">
+    <div class="chart-title">KPI Anomaly Detection</div>
+    <div class="chart-sub">Automatic abnormal point detection using z-score on KPI trend</div>
+    <div class="chart-wrap ar-wide"><canvas id="chart-kpi-anomaly"></canvas></div>
+    <div class="anomaly-list" id="anomaly-list"></div>
+  </div>
+</div>
+
 <!-- FOOTER -->
 <div class="dash-footer">
   <span>NX Nippon Express · SONY Indonesia CAK_SNYY · NX-GLOW WMS · Audit Prep 2026</span>
@@ -1196,6 +1384,76 @@ const D = {
   ]
 };
 
+const warehouseMetrics = {
+  inventory: {
+    preAudit: { turnover: 2.6, accuracy: 96.4, grOnTime: 43.0, damageRate: 2.9 },
+    postAudit: { turnover: 3.4, accuracy: 97.6, grOnTime: 56.5, damageRate: 2.1 },
+    current:  { turnover: 3.76, accuracy: 97.8, grOnTime: 48.0, damageRate: 2.3 }
+  },
+  operations: {
+    processDelays: {
+      Receiving: 4.8,
+      Putaway: 3.1,
+      Picking: 2.4,
+      QC: 2.9,
+      Loading: 4.1
+    }
+  },
+  risks: {
+    aging: { score: 0, level: 'LOW' },
+    capacity: { score: 0, level: 'LOW' },
+    dataAccuracy: { score: 0, level: 'LOW' }
+  },
+  improvements: [
+    {
+      issue: 'Low GR on-time rate',
+      rootCause: 'Carrier punctuality and ASN inconsistency',
+      actionPlan: 'Weekly carrier OTD review + ASN compliance gate',
+      owner: 'Logistics',
+      status: 'In Progress',
+      progressPercent: 62,
+      dueDate: '2026-04-05'
+    },
+    {
+      issue: 'Aging inventory >180d',
+      rootCause: 'Slow replenishment policy adjustments',
+      actionPlan: 'Cycle-count + clearance playbook for aged SKUs',
+      owner: 'Warehouse Ops',
+      status: 'Open',
+      progressPercent: 34,
+      dueDate: '2026-03-28'
+    },
+    {
+      issue: 'Damage spikes on inbound',
+      rootCause: 'Supplier packaging variability',
+      actionPlan: 'Supplier CAPA + photo evidence at receiving',
+      owner: 'Quality',
+      status: 'Delayed',
+      progressPercent: 22,
+      dueDate: '2026-03-22'
+    },
+    {
+      issue: 'Missing master dimensions',
+      rootCause: 'Incomplete product data maintenance',
+      actionPlan: 'Complete dimension upload for critical SKUs',
+      owner: 'Master Data',
+      status: 'In Progress',
+      progressPercent: 71,
+      dueDate: '2026-04-12'
+    },
+    {
+      issue: 'SLA below 80% target',
+      rootCause: 'Stage-to-load handoff delays',
+      actionPlan: 'Loading slot window optimization + dispatcher SOP',
+      owner: 'Outbound Team',
+      status: 'Done',
+      progressPercent: 100,
+      dueDate: '2026-03-15'
+    }
+  ]
+};
+let trackerSortAsc = true;
+
 // ── Chart.js global defaults ──────────────────────────────────────
 Chart.defaults.color = '#4A5270';
 Chart.defaults.font.family = "'IBM Plex Mono', monospace";
@@ -1242,6 +1500,410 @@ function getActiveTabIndex() {
   return Array.from(document.querySelectorAll('.tab-btn')).indexOf(activeBtn);
 }
 
+const ZONE_VOL_FACTOR = {
+  ALL: 1.0,
+  Floor: 0.42,
+  'High Duty Rack': 0.34,
+  'Dry Room': 0.18,
+  'Biz Plan Room': 0.06
+};
+const SBIV_VOL_FACTOR = {
+  ALL: 1.0,
+  MAIN: 0.64,
+  DEMO: 0.08,
+  GDSB: 0.09,
+  DAMS: 0.07,
+  REPR: 0.07,
+  CABN: 0.05
+};
+const ZONE_RATE_DELTA = {
+  ALL: 0,
+  Floor: 1.0,
+  'High Duty Rack': -1.2,
+  'Dry Room': 1.6,
+  'Biz Plan Room': 0.3
+};
+const SBIV_RATE_DELTA = {
+  ALL: 0,
+  MAIN: 0.4,
+  DEMO: -0.6,
+  GDSB: -0.2,
+  DAMS: -1.0,
+  REPR: -0.4,
+  CABN: 0.2
+};
+
+function getVolumeFactor() {
+  return (ZONE_VOL_FACTOR[state.zone] || 1) * (SBIV_VOL_FACTOR[state.sbiv] || 1);
+}
+function getRateDelta() {
+  return (ZONE_RATE_DELTA[state.zone] || 0) + (SBIV_RATE_DELTA[state.sbiv] || 0);
+}
+function filteredVolumeSeries(arr, digits = 0) {
+  const factor = getVolumeFactor();
+  const mul = 10 ** digits;
+  return sliceD(arr).map(v => Math.round(v * factor * mul) / mul);
+}
+function filteredRateSeries(arr, min = 0, max = 100, digits = 1) {
+  const delta = getRateDelta();
+  const mul = 10 ** digits;
+  return sliceD(arr).map(v => {
+    const shifted = Math.max(min, Math.min(max, v + delta));
+    return Math.round(shifted * mul) / mul;
+  });
+}
+function getSbivView(arr) {
+  if (state.sbiv === 'ALL') return { labels: D.sbivCats, data: arr };
+  const idx = D.sbivCats.indexOf(state.sbiv);
+  if (idx < 0) return { labels: D.sbivCats, data: arr };
+  return { labels: [D.sbivCats[idx]], data: [arr[idx]] };
+}
+function getZoneView() {
+  const factor = SBIV_VOL_FACTOR[state.sbiv] || 1;
+  if (state.zone === 'ALL') {
+    const used = D.zoneUsed.map(v => parseFloat((v * factor).toFixed(1)));
+    const cap = D.zoneCap.map(v => parseFloat((v * factor).toFixed(1)));
+    const pct = cap.map((c, i) => c === 0 ? 0 : (used[i] / c) * 100);
+    return { labels: D.zoneNames, used, cap, pct };
+  }
+  const idx = D.zoneNames.indexOf(state.zone);
+  if (idx < 0) {
+    return {
+      labels: D.zoneNames,
+      used: D.zoneUsed.map(v => parseFloat((v * factor).toFixed(1))),
+      cap: D.zoneCap.map(v => parseFloat((v * factor).toFixed(1))),
+      pct: D.zonePct
+    };
+  }
+  const used = parseFloat((D.zoneUsed[idx] * factor).toFixed(1));
+  const cap = parseFloat((D.zoneCap[idx] * factor).toFixed(1));
+  const pct = cap === 0 ? 0 : (used / cap) * 100;
+  return { labels: [state.zone], used: [used], cap: [cap], pct: [pct] };
+}
+function getAgingView() {
+  if (state.sbiv === 'ALL') {
+    return { labels: D.ageLabels, all: D.ageAll, compare: D.ageMain, compareLabel: 'MAIN Only' };
+  }
+  const share = SBIV_VOL_FACTOR[state.sbiv] || 0.1;
+  const base = D.ageAll.map(v => Math.round(v * share));
+  const compare = state.sbiv === 'MAIN' ? base : base.map(v => Math.round(v * 0.35));
+  const compareLabel = state.sbiv === 'MAIN' ? 'MAIN Only' : `${state.sbiv} focus`;
+  return { labels: D.ageLabels, all: base, compare, compareLabel };
+}
+function getFilteredSlotView() {
+  if (state.zone === 'ALL') return { labels: D.locZones, slots: D.locSlots };
+  const idx = D.locZones.indexOf(state.zone);
+  if (idx < 0) return { labels: D.locZones, slots: D.locSlots };
+  return { labels: [D.locZones[idx]], slots: [D.locSlots[idx]] };
+}
+
+function renderKPI(id, value, suffix) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = `${value}${suffix || ''}`;
+}
+
+function toRiskLevel(score) {
+  if (score >= 70) return 'HIGH';
+  if (score >= 40) return 'MEDIUM';
+  return 'LOW';
+}
+
+function progressClass(progressPercent) {
+  if (progressPercent >= 75) return 'good';
+  if (progressPercent >= 45) return 'warn';
+  return 'bad';
+}
+
+function linearProjection(series, horizon) {
+  if (!series.length) return [];
+  const n = series.length;
+  const xMean = (n - 1) / 2;
+  const yMean = series.reduce((a, b) => a + b, 0) / n;
+  let num = 0, den = 0;
+  for (let i = 0; i < n; i++) {
+    num += (i - xMean) * (series[i] - yMean);
+    den += (i - xMean) * (i - xMean);
+  }
+  const slope = den ? num / den : 0;
+  const intercept = yMean - slope * xMean;
+  const out = [];
+  for (let i = n; i < n + horizon; i++) out.push(parseFloat((intercept + slope * i).toFixed(2)));
+  return out;
+}
+
+function detectAnomalies(values, threshold) {
+  const mean = values.reduce((a, b) => a + b, 0) / (values.length || 1);
+  const variance = values.reduce((a, b) => a + ((b - mean) ** 2), 0) / (values.length || 1);
+  const std = Math.sqrt(variance) || 1;
+  return values.map((v, i) => ({ index: i, value: v, z: (v - mean) / std }))
+    .filter(r => Math.abs(r.z) >= (threshold || 1.2));
+}
+
+function getImprovementModel() {
+  const months = sliceM();
+  const inbound = filteredVolumeSeries(D.inbound);
+  const outbound = filteredVolumeSeries(D.outbound);
+  const stock = filteredVolumeSeries(D.stockLevel);
+  const gr = filteredRateSeries(D.grOT);
+  const sla = filteredRateSeries(D.siSLA);
+  const disc = filteredRateSeries(D.discRate, 0, 10);
+  const aging = getAgingView().all;
+  const totalAging = aging.reduce((a, b) => a + b, 0) || 1;
+  const slowMovingRatio = ((aging[2] + aging[3] + aging[4]) / totalAging) * 100;
+  const deadStockRatio = ((aging[3] + aging[4]) / totalAging) * 100;
+  const avgStock = stock.reduce((a, b) => a + b, 0) / (stock.length || 1);
+  const inventoryVelocity = outbound.reduce((a, b) => a + b, 0) / (avgStock || 1);
+
+  const zoneView = getZoneView();
+  const maxCapacityPct = Math.max(...zoneView.pct, 0);
+  const capacityRiskScore = Math.min(100, maxCapacityPct * 1.2);
+  const agingRiskScore = Math.min(100, deadStockRatio * 3.4);
+  const dataRiskScore = Math.min(100, (disc.reduce((a, b) => a + b, 0) / disc.length) * 20);
+
+  const turnoverSeries = filteredRateSeries([25.4, 24.8, 22.1, 18.3, 14.7, 11.2, 8.9, 7.2, 6.1, 5.0, 3.76], 0, 40);
+  const stockCapacityBaseline = Math.max(zoneView.cap.reduce((a, b) => a + b, 0), 1) * 45;
+  const capacitySeries = stock.map(v => parseFloat(Math.min((v / stockCapacityBaseline) * 100, 100).toFixed(2)));
+
+  const processFactor = 0.9 + (getVolumeFactor() * 0.45) + Math.max(0, -getRateDelta()) * 0.01;
+  const delays = Object.entries(warehouseMetrics.operations.processDelays).map(([process, delay]) => ({
+    process,
+    delay: parseFloat((delay * processFactor).toFixed(2))
+  }));
+  const largestBottleneck = delays.reduce((m, d) => d.delay > m.delay ? d : m, delays[0]);
+
+  const currentDamageRate = (filteredVolumeSeries(D.dams).reduce((a, b) => a + b, 0) / (inbound.reduce((a, b) => a + b, 0) || 1)) * 100;
+  const currentAccuracy = Math.max(90, 100 - (disc.reduce((a, b) => a + b, 0) / disc.length));
+
+  const auditComparison = [
+    { metric: 'Inventory Turnover', pre: warehouseMetrics.inventory.preAudit.turnover, post: warehouseMetrics.inventory.postAudit.turnover, current: parseFloat((turnoverSeries.at(-1) || 0).toFixed(2)) },
+    { metric: 'Inventory Accuracy', pre: warehouseMetrics.inventory.preAudit.accuracy, post: warehouseMetrics.inventory.postAudit.accuracy, current: parseFloat(currentAccuracy.toFixed(2)) },
+    { metric: 'GR On-time Rate', pre: warehouseMetrics.inventory.preAudit.grOnTime, post: warehouseMetrics.inventory.postAudit.grOnTime, current: parseFloat((gr.reduce((a, b) => a + b, 0) / gr.length).toFixed(2)) },
+    { metric: 'Damage Rate', pre: warehouseMetrics.inventory.preAudit.damageRate, post: warehouseMetrics.inventory.postAudit.damageRate, current: parseFloat(currentDamageRate.toFixed(2)) }
+  ];
+
+  const anomalyRows = detectAnomalies(gr, 1.1).map(a => ({
+    month: months[a.index],
+    value: a.value,
+    z: a.z,
+    type: a.z > 0 ? 'HIGH' : 'LOW'
+  }));
+
+  return {
+    months, gr, sla, inbound, outbound, stock, turnoverSeries, capacitySeries,
+    delays, largestBottleneck, auditComparison,
+    health: { slowMovingRatio, deadStockRatio, inventoryVelocity },
+    risks: {
+      aging: { score: parseFloat(agingRiskScore.toFixed(1)), level: toRiskLevel(agingRiskScore) },
+      capacity: { score: parseFloat(capacityRiskScore.toFixed(1)), level: toRiskLevel(capacityRiskScore) },
+      dataAccuracy: { score: parseFloat(dataRiskScore.toFixed(1)), level: toRiskLevel(dataRiskScore) }
+    },
+    anomalies: anomalyRows
+  };
+}
+
+function renderImprovementTracker() {
+  const tbody = document.getElementById('improvement-tracker-body');
+  const statusFilterEl = document.getElementById('imp-status-filter');
+  if (!tbody || !statusFilterEl) return;
+  const statusFilter = statusFilterEl.value;
+  let rows = warehouseMetrics.improvements.slice();
+  if (statusFilter !== 'ALL') rows = rows.filter(r => r.status === statusFilter);
+  rows.sort((a, b) => trackerSortAsc ? a.progressPercent - b.progressPercent : b.progressPercent - a.progressPercent);
+  tbody.innerHTML = rows.map(r => {
+    const pct = Math.max(0, Math.min(100, r.progressPercent));
+    return `<tr>
+      <td>${r.issue}</td>
+      <td>${r.rootCause}</td>
+      <td>${r.actionPlan}</td>
+      <td>${r.owner}</td>
+      <td><span class="status-pill ${r.status.toLowerCase().replace(' ', '-')}">${r.status}</span></td>
+      <td>
+        <div>${pct}%</div>
+        <div class="progress-track"><div class="progress-fill ${progressClass(pct)}" style="width:${pct}%"></div></div>
+      </td>
+      <td>${r.dueDate}</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderBottleneckChart(model) {
+  const ctx = document.getElementById('chart-bottleneck');
+  if (!ctx) return;
+  const labels = model.delays.map(d => d.process);
+  const data = model.delays.map(d => d.delay);
+  const colors = model.delays.map(d => d.process === model.largestBottleneck.process ? a(RED.slice(1),0.82)+'' : a(CYAN.slice(1),0.65)+'');
+  if (!mainCharts['bottleneck']) {
+    mainCharts['bottleneck'] = new Chart(ctx, {
+      type: 'bar',
+      data: { labels, datasets: [{ label: 'Avg Delay (h)', data, backgroundColor: colors, borderRadius: 3 }] },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { tooltip: { callbacks: { label: t => ` ${t.raw.toFixed(2)} hours` } } },
+        scales: { x: { grid: GRID_OPT, ticks: TICK_OPT }, y: { grid: GRID_OPT, ticks: TICK_OPT } }
+      }
+    });
+  } else {
+    mainCharts['bottleneck'].data.labels = labels;
+    mainCharts['bottleneck'].data.datasets[0].data = data;
+    mainCharts['bottleneck'].data.datasets[0].backgroundColor = colors;
+    mainCharts['bottleneck'].update();
+  }
+}
+
+function renderAuditComparison(model) {
+  const ctx = document.getElementById('chart-audit-compare');
+  if (!ctx) return;
+  const labels = model.auditComparison.map(r => r.metric);
+  const pre = model.auditComparison.map(r => r.pre);
+  const post = model.auditComparison.map(r => r.post);
+  const curr = model.auditComparison.map(r => r.current);
+  if (!mainCharts['audit-compare']) {
+    mainCharts['audit-compare'] = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          { label: 'Pre-Audit', data: pre, backgroundColor: a(PURPLE.slice(1),0.62)+'', borderRadius: 2 },
+          { label: 'Post-Audit', data: post, backgroundColor: a(GREEN.slice(1),0.72)+'', borderRadius: 2 },
+          { label: 'Current', data: curr, backgroundColor: a(CYAN.slice(1),0.82)+'', borderRadius: 2 }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: true, position: 'top', labels: { color: '#8A9BB8', font: { family: "'Oxanium'", size: 10 } } } },
+        scales: { x: { grid: GRID_OPT, ticks: TICK_OPT }, y: { grid: GRID_OPT, ticks: TICK_OPT } }
+      }
+    });
+  } else {
+    const c = mainCharts['audit-compare'];
+    c.data.labels = labels;
+    c.data.datasets[0].data = pre;
+    c.data.datasets[1].data = post;
+    c.data.datasets[2].data = curr;
+    c.update();
+  }
+}
+
+function renderRiskPanel(model) {
+  renderKPI('risk-aging-level', model.risks.aging.level, '');
+  renderKPI('risk-capacity-level', model.risks.capacity.level, '');
+  renderKPI('risk-accuracy-level', model.risks.dataAccuracy.level, '');
+  renderKPI('risk-aging-score', `Score: ${model.risks.aging.score.toFixed(1)}/100`, '');
+  renderKPI('risk-capacity-score', `Score: ${model.risks.capacity.score.toFixed(1)}/100`, '');
+  renderKPI('risk-accuracy-score', `Score: ${model.risks.dataAccuracy.score.toFixed(1)}/100`, '');
+  const applyTone = (id, level) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.style.color = level === 'HIGH' ? 'var(--red)' : level === 'MEDIUM' ? 'var(--amber)' : 'var(--green)';
+  };
+  applyTone('risk-aging-level', model.risks.aging.level);
+  applyTone('risk-capacity-level', model.risks.capacity.level);
+  applyTone('risk-accuracy-level', model.risks.dataAccuracy.level);
+}
+
+function renderInventoryHealth(model) {
+  renderKPI('ih-slow-moving', `${model.health.slowMovingRatio.toFixed(1)}`, '%');
+  renderKPI('ih-dead-stock', `${model.health.deadStockRatio.toFixed(1)}`, '%');
+  renderKPI('ih-velocity', `${model.health.inventoryVelocity.toFixed(2)}`, 'x');
+}
+
+function renderPredictiveCharts(model) {
+  const horizon = 6;
+  const fMonths = Array.from({ length: horizon }, (_, i) => `F+${i + 1}`);
+  const capForecast = linearProjection(model.capacitySeries, horizon);
+  const turnForecast = linearProjection(model.turnoverSeries, horizon);
+
+  const capCtx = document.getElementById('chart-capacity-forecast');
+  if (capCtx) {
+    if (!mainCharts['capacity-forecast']) {
+      mainCharts['capacity-forecast'] = new Chart(capCtx, {
+        type: 'line',
+        data: {
+          labels: model.months.concat(fMonths),
+          datasets: [
+            { label: 'Actual', data: model.capacitySeries.concat(new Array(horizon).fill(null)), borderColor: CYAN, backgroundColor: a(CYAN.slice(1),0.08)+'', tension: 0.35, fill: true, pointRadius: 3 },
+            { label: 'Forecast', data: new Array(model.capacitySeries.length).fill(null).concat(capForecast), borderColor: AMBER, borderDash: [5,4], tension: 0.35, fill: false, pointRadius: 3 }
+          ]
+        },
+        options: { responsive: true, maintainAspectRatio: false, scales: { x: { grid: GRID_OPT, ticks: TICK_OPT }, y: { grid: GRID_OPT, ticks: { ...TICK_OPT, callback: v => `${v}%` } } } }
+      });
+    } else {
+      const c = mainCharts['capacity-forecast'];
+      c.data.labels = model.months.concat(fMonths);
+      c.data.datasets[0].data = model.capacitySeries.concat(new Array(horizon).fill(null));
+      c.data.datasets[1].data = new Array(model.capacitySeries.length).fill(null).concat(capForecast);
+      c.update();
+    }
+  }
+
+  const turnCtx = document.getElementById('chart-turnover-proj');
+  if (turnCtx) {
+    if (!mainCharts['turnover-proj']) {
+      mainCharts['turnover-proj'] = new Chart(turnCtx, {
+        type: 'line',
+        data: {
+          labels: model.months.concat(fMonths),
+          datasets: [
+            { label: 'Actual Turnover', data: model.turnoverSeries.concat(new Array(horizon).fill(null)), borderColor: GREEN, backgroundColor: a(GREEN.slice(1),0.08)+'', tension: 0.35, fill: true, pointRadius: 3 },
+            { label: 'Projected Turnover', data: new Array(model.turnoverSeries.length).fill(null).concat(turnForecast), borderColor: PURPLE, borderDash: [5,4], tension: 0.35, fill: false, pointRadius: 3 }
+          ]
+        },
+        options: { responsive: true, maintainAspectRatio: false, scales: { x: { grid: GRID_OPT, ticks: TICK_OPT }, y: { grid: GRID_OPT, ticks: TICK_OPT } } }
+      });
+    } else {
+      const c = mainCharts['turnover-proj'];
+      c.data.labels = model.months.concat(fMonths);
+      c.data.datasets[0].data = model.turnoverSeries.concat(new Array(horizon).fill(null));
+      c.data.datasets[1].data = new Array(model.turnoverSeries.length).fill(null).concat(turnForecast);
+      c.update();
+    }
+  }
+
+  const anomalyCtx = document.getElementById('chart-kpi-anomaly');
+  if (anomalyCtx) {
+    const anomalIdx = new Set(model.anomalies.map(a => a.month));
+    const pointBg = model.months.map((m, i) => anomalIdx.has(m) ? RED : CYAN);
+    if (!mainCharts['kpi-anomaly']) {
+      mainCharts['kpi-anomaly'] = new Chart(anomalyCtx, {
+        type: 'line',
+        data: {
+          labels: model.months,
+          datasets: [{ label: 'GR On-time %', data: model.gr, borderColor: CYAN, backgroundColor: a(CYAN.slice(1),0.08)+'', tension: 0.35, fill: true, pointBackgroundColor: pointBg, pointRadius: model.months.map(m => anomalIdx.has(m) ? 6 : 3) }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, scales: { x: { grid: GRID_OPT, ticks: TICK_OPT }, y: { grid: GRID_OPT, ticks: { ...TICK_OPT, callback: v => `${v}%` } } } }
+      });
+    } else {
+      const c = mainCharts['kpi-anomaly'];
+      c.data.labels = model.months;
+      c.data.datasets[0].data = model.gr;
+      c.data.datasets[0].pointBackgroundColor = pointBg;
+      c.data.datasets[0].pointRadius = model.months.map(m => anomalIdx.has(m) ? 6 : 3);
+      c.update();
+    }
+  }
+
+  const list = document.getElementById('anomaly-list');
+  if (list) {
+    if (!model.anomalies.length) {
+      list.innerHTML = '<div class="anomaly-item low">No abnormal KPI points detected in current filter window.</div>';
+    } else {
+      list.innerHTML = model.anomalies.map(a => `<div class="anomaly-item ${a.type.toLowerCase()}">${a.month}: GR On-time ${a.value.toFixed(1)}% (z=${a.z.toFixed(2)})</div>`).join('');
+    }
+  }
+}
+
+function renderImprovementModule() {
+  const model = getImprovementModel();
+  warehouseMetrics.risks = model.risks;
+  renderImprovementTracker();
+  renderBottleneckChart(model);
+  renderAuditComparison(model);
+  renderInventoryHealth(model);
+  renderRiskPanel(model);
+  renderPredictiveCharts(model);
+}
+
 // ── Spark chart registry ───────────────────────────────────────────
 const sparkCharts = {};
 const mainCharts  = {};
@@ -1274,18 +1936,18 @@ function makeSpark(id, data, color) {
 }
 
 function initSparks() {
-  makeSpark('spark-skus',    sliceD([720,731,740,744,749,751,751,751,751,751,751]), CYAN);
-  makeSpark('spark-stock',   sliceD(D.stockLevel), GREEN);
-  makeSpark('spark-space',   sliceD([35,36,37,37,38,38,39,39,39,39,39]), GREEN);
-  makeSpark('spark-density', sliceD([43,44,45,45,46,46,45,45,45,45,45]), AMBER);
-  makeSpark('spark-turn',    sliceD([25.4,24.8,22.1,18.3,14.7,11.2,8.9,7.2,6.1,5.0,3.76]), RED);
-  makeSpark('spark-dio',     sliceD([83,88,94,100,107,112,116,120,123,126,128.9]), RED);
-  makeSpark('spark-aging',   sliceD([12,13,14,15,16,17,18,18,19,19,19.1]), AMBER);
-  makeSpark('spark-disc',    sliceD(D.discRate), PURPLE);
-  makeSpark('spark-pick',    sliceD(D.pickAcc), CYAN);
-  makeSpark('spark-dams',    sliceD(D.dams), RED);
-  makeSpark('spark-gr',      sliceD(D.grOT), RED);
-  makeSpark('spark-sla',     sliceD(D.siSLA), GREEN);
+  makeSpark('spark-skus',    filteredVolumeSeries([720,731,740,744,749,751,751,751,751,751,751]), CYAN);
+  makeSpark('spark-stock',   filteredVolumeSeries(D.stockLevel), GREEN);
+  makeSpark('spark-space',   filteredRateSeries([35,36,37,37,38,38,39,39,39,39,39], 0, 100), GREEN);
+  makeSpark('spark-density', filteredRateSeries([43,44,45,45,46,46,45,45,45,45,45], 0, 100), AMBER);
+  makeSpark('spark-turn',    filteredRateSeries([25.4,24.8,22.1,18.3,14.7,11.2,8.9,7.2,6.1,5.0,3.76], 0, 100), RED);
+  makeSpark('spark-dio',     filteredRateSeries([83,88,94,100,107,112,116,120,123,126,128.9], 0, 300), RED);
+  makeSpark('spark-aging',   filteredRateSeries([12,13,14,15,16,17,18,18,19,19,19.1], 0, 100), AMBER);
+  makeSpark('spark-disc',    filteredRateSeries(D.discRate, 0, 10), PURPLE);
+  makeSpark('spark-pick',    filteredRateSeries(D.pickAcc, 90, 100), CYAN);
+  makeSpark('spark-dams',    filteredVolumeSeries(D.dams), RED);
+  makeSpark('spark-gr',      filteredRateSeries(D.grOT), RED);
+  makeSpark('spark-sla',     filteredRateSeries(D.siSLA), GREEN);
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -2092,13 +2754,36 @@ function updateDisplayedRange() {
   document.getElementById('flt-start-val').textContent = D.months[s];
   document.getElementById('flt-end-val').textContent   = D.months[e];
   const n = e - s + 1;
-  document.getElementById('flt-range-display').textContent = `${n} month${n>1?'s':''}`;
+  const zoneLbl = state.zone === 'ALL' ? 'All Zones' : state.zone;
+  const sbivLbl = state.sbiv === 'ALL' ? 'All SBIV' : state.sbiv;
+  document.getElementById('flt-range-display').textContent = `${n} month${n>1?'s':''} · ${zoneLbl} · ${sbivLbl}`;
   document.getElementById('footer-filter-info').textContent =
     `Showing: ${D.months[s]} – ${D.months[e]} · ${n} months · ${state.zone === 'ALL' ? 'All Zones' : state.zone} · ${state.sbiv === 'ALL' ? 'All SBIV' : state.sbiv}`;
 }
 
+function updateOverviewCharts() {
+  initSparks();
+  const z = getZoneView();
+  if (mainCharts['zone-ovw']) {
+    mainCharts['zone-ovw'].data.labels = z.labels;
+    mainCharts['zone-ovw'].data.datasets[0].data = z.used;
+    mainCharts['zone-ovw'].data.datasets[0].backgroundColor = z.pct.map(p => p > 50 ? a(AMBER,0.8) : a(GREEN,0.75));
+    mainCharts['zone-ovw'].data.datasets[1].data = z.cap.map((c, i) => Math.max(c - z.used[i], 0));
+    mainCharts['zone-ovw'].update();
+  }
+  const ag = getAgingView();
+  if (mainCharts['age-ovw']) {
+    mainCharts['age-ovw'].data.labels = ag.labels;
+    mainCharts['age-ovw'].data.datasets[0].data = ag.all;
+    mainCharts['age-ovw'].update();
+  }
+}
+
 function updateFlowCharts() {
-  const m = sliceM(), ib = sliceD(D.inbound), ob = sliceD(D.outbound), net = sliceD(D.net);
+  const m = sliceM();
+  const ib = filteredVolumeSeries(D.inbound);
+  const ob = filteredVolumeSeries(D.outbound);
+  const net = ib.map((v, i) => v - (ob[i] || 0));
   if (mainCharts['flow']) {
     mainCharts['flow'].data.labels = m;
     mainCharts['flow'].data.datasets[0].data = ib;
@@ -2108,13 +2793,41 @@ function updateFlowCharts() {
   }
   if (mainCharts['stock-trend']) {
     mainCharts['stock-trend'].data.labels = m;
-    mainCharts['stock-trend'].data.datasets[0].data = sliceD(D.stockLevel);
+    mainCharts['stock-trend'].data.datasets[0].data = filteredVolumeSeries(D.stockLevel);
     mainCharts['stock-trend'].update();
+  }
+  const t = getSbivView(D.turn25);
+  const t2 = getSbivView(D.turn26);
+  if (mainCharts['turnover']) {
+    mainCharts['turnover'].data.labels = t.labels;
+    mainCharts['turnover'].data.datasets[0].data = t.data;
+    mainCharts['turnover'].data.datasets[1].data = t2.data;
+    mainCharts['turnover'].update();
+  }
+  const d25 = getSbivView(D.dio25);
+  const d26 = getSbivView(D.dio26);
+  if (mainCharts['dio']) {
+    mainCharts['dio'].data.labels = d25.labels;
+    mainCharts['dio'].data.datasets[0].data = d25.data;
+    mainCharts['dio'].data.datasets[1].data = d26.data;
+    mainCharts['dio'].update();
+  }
+  const ag = getAgingView();
+  if (mainCharts['aging']) {
+    mainCharts['aging'].data.labels = ag.labels;
+    mainCharts['aging'].data.datasets[0].label = state.sbiv === 'ALL' ? 'All Sub-Inv' : state.sbiv;
+    mainCharts['aging'].data.datasets[0].data = ag.all;
+    mainCharts['aging'].data.datasets[1].label = ag.compareLabel;
+    mainCharts['aging'].data.datasets[1].data = ag.compare;
+    mainCharts['aging'].update();
   }
 }
 
 function updateOpsCharts() {
-  const m = sliceM(), gr = sliceD(D.grOT), sla = sliceD(D.siSLA), dams = sliceD(D.dams);
+  const m = sliceM();
+  const gr = filteredRateSeries(D.grOT);
+  const sla = filteredRateSeries(D.siSLA);
+  const dams = filteredVolumeSeries(D.dams);
   if (mainCharts['ot-dual']) {
     mainCharts['ot-dual'].data.labels = m;
     mainCharts['ot-dual'].data.datasets[0].data = gr;
@@ -2137,10 +2850,26 @@ function updateOpsCharts() {
     mainCharts['dams'].data.datasets[0].data = dams;
     mainCharts['dams'].update();
   }
+  if (mainCharts['pick']) {
+    const pick = filteredRateSeries(D.pickAcc, 94, 100);
+    mainCharts['pick'].data.labels = m;
+    mainCharts['pick'].data.datasets[0].data = pick;
+    mainCharts['pick'].update();
+  }
+  if (mainCharts['disc']) {
+    const disc = filteredRateSeries(D.discRate, 0, 10);
+    mainCharts['disc'].data.labels = m;
+    mainCharts['disc'].data.datasets[0].data = disc;
+    mainCharts['disc'].data.datasets[0].backgroundColor = disc.map(v => v>3 ? a(RED.slice(1),0.8)+'' : v>2 ? a(AMBER.slice(1),0.75)+'' : a(PURPLE.slice(1),0.65)+'');
+    mainCharts['disc'].update();
+  }
 }
 
 function updateProdCharts() {
-  const m = sliceM(), ob = sliceD(D.outbound), ib = sliceD(D.inbound), uph = sliceD(D.uph);
+  const m = sliceM();
+  const ob = filteredVolumeSeries(D.outbound);
+  const ib = filteredVolumeSeries(D.inbound);
+  const uph = filteredRateSeries(D.uph, 0, 50);
   const avgOB = ob.reduce((a,b)=>a+b,0)/ob.length;
   if (mainCharts['throughput']) {
     mainCharts['throughput'].data.labels = m;
@@ -2166,11 +2895,17 @@ function updateProdCharts() {
     mainCharts['eff-ratio'].data.datasets[1].data = effRatio.map(() => 1.0);
     mainCharts['eff-ratio'].update();
   }
+  if (mainCharts['slots']) {
+    const slotView = getFilteredSlotView();
+    mainCharts['slots'].data.labels = slotView.labels;
+    mainCharts['slots'].data.datasets[0].data = slotView.slots;
+    mainCharts['slots'].update();
+  }
 }
 
 function updateHeaderKPIs() {
-  const grSlice = sliceD(D.grOT);
-  const slaSlice = sliceD(D.siSLA);
+  const grSlice = filteredRateSeries(D.grOT);
+  const slaSlice = filteredRateSeries(D.siSLA);
   const avgGR  = grSlice.reduce((a,b)=>a+b,0)/grSlice.length;
   const avgSLA = slaSlice.reduce((a,b)=>a+b,0)/slaSlice.length;
   document.getElementById('h-kpi-3').textContent = avgGR.toFixed(1)+'%';
@@ -2184,16 +2919,21 @@ function updateActiveDashboard() {
     tabInits[activeTab]();
     return;
   }
-  if (activeTab === 0) initSparks();
+  if (activeTab === 0) updateOverviewCharts();
   if (activeTab === 1) updateFlowCharts();
   if (activeTab === 2) updateOpsCharts();
   if (activeTab === 3) updateProdCharts();
+  if (activeTab === 8) renderImprovementModule();
 }
 
 function applyFilters() {
   updateDisplayedRange();
   updateHeaderKPIs();
-  updateActiveDashboard();
+  updateOverviewCharts();
+  updateFlowCharts();
+  updateOpsCharts();
+  updateProdCharts();
+  renderImprovementModule();
   updateDisplayedRange();
 }
 
@@ -2236,9 +2976,11 @@ const tabInits = [
   () => { initProdCharts(); },
   () => { initRelCharts(); },
   () => { initRiskCharts(); },
-  () => {}
+  () => {},
+  () => {},
+  () => { renderImprovementModule(); }
 ];
-const tabInitialized = new Array(7).fill(false);
+const tabInitialized = new Array(9).fill(false);
 
 function switchTab(idx) {
   document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', i===idx));
@@ -2257,8 +2999,16 @@ function switchTab(idx) {
 document.addEventListener('DOMContentLoaded', () => {
   tabInitialized[0] = true;
   tabInits[0]();
-  updateDisplayedRange();
+  const statusFilter = document.getElementById('imp-status-filter');
+  const sortBtn = document.getElementById('imp-sort-progress');
+  if (statusFilter) statusFilter.addEventListener('change', () => renderImprovementTracker());
+  if (sortBtn) sortBtn.addEventListener('click', () => {
+    trackerSortAsc = !trackerSortAsc;
+    renderImprovementTracker();
+  });
+  applyFilters();
 });
 </script>
 </body>
 </html>
+
