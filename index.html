@@ -74,7 +74,6 @@ body {
   width: 40px; height: 40px;
   display: flex; align-items: center; justify-content: center;
   letter-spacing: -0.04em;
-  clip-path: polygon(0 0, 85% 0, 100% 15%, 100% 100%, 15% 100%, 0 85%);
 }
 .header-title { font-family: var(--disp); font-weight: 700; font-size: 16px; letter-spacing: 0.06em; text-transform: uppercase; color: #FFFFFF; }
 .header-sub { font-size: 10px; color: rgba(255,255,255,0.6); letter-spacing: 0.12em; text-transform: uppercase; margin-top: 1px; font-family: var(--disp); }
@@ -163,12 +162,12 @@ select option { background: #F0F3FA; }
 .sec-line { flex: 1; height: 1px; background: linear-gradient(90deg, #D8DEF0 0%, transparent 100%); }
 
 /* ── GRID SYSTEM ── */
-.grid-6 { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; }
-.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
-.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-.grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; width: fit-content;}
-.grid-21 { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; }
-.grid-12 { display: grid; grid-template-columns: 1fr 2fr; gap: 16px; }
+.grid-6 { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+.grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 16px; }
+.grid-21 { display: grid; grid-template-columns: minmax(0, 2fr) minmax(320px, 1fr); gap: 16px; }
+.grid-12 { display: grid; grid-template-columns: minmax(320px, 1fr) minmax(0, 2fr); gap: 16px; }
 .gap-sm { height: 12px; }
 .gap { height: 20px; }
 
@@ -247,7 +246,7 @@ canvas { max-width: 100%; }
 
 /* ── RISK DETECTION ── */
 .risk-matrix-wrap { position: relative; }
-.risk-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+.risk-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 10px; margin-bottom: 20px; }
 .risk-item {
   background: #F7F9FE;
   border: 1px solid var(--border);
@@ -263,7 +262,7 @@ canvas { max-width: 100%; }
 .risk-name { font-family: var(--disp); font-size: 11.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #1A1F36; }
 .risk-desc { font-size: 11.5px; color: #4A5270; line-height: 1.55; }
 .risk-metric { font-family: var(--mono); font-size: 11px; color: #5A6480; margin-top: 5px; }
-.risk-radar-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+.risk-radar-wrap { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; align-items: start; }
 .risk-summary-list { display: flex; flex-direction: column; gap: 8px; }
 .rs-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 14px; background: #F0F3FA; border: 1px solid var(--border); }
 .rs-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
@@ -272,7 +271,7 @@ canvas { max-width: 100%; }
 .rs-text  { font-size: 11.5px; color: var(--text2); line-height: 1.5; }
 
 /* ── STRATEGY PANEL ── */
-.strategy-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.strategy-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
 .strat-card {
   background: #F7F9FE;
   border: 1px solid var(--border);
@@ -321,11 +320,11 @@ canvas { max-width: 100%; }
 
 /* ── RESPONSIVE ── */
 @media (max-width: 1200px) {
-  .grid-6 { grid-template-columns: repeat(3, 1fr); }
-  .grid-4 { grid-template-columns: repeat(2, 1fr); }
+  .grid-21, .grid-12 { grid-template-columns: 1fr; }
 }
 @media (max-width: 900px) {
   .grid-6, .grid-4, .grid-3, .grid-2, .grid-21, .grid-12 { grid-template-columns: 1fr; }
+  .risk-grid, .risk-radar-wrap, .strategy-grid { grid-template-columns: 1fr; }
   .header-center { display: none; }
   .tab-content { padding: 16px; }
   .filter-bar { padding: 8px 16px; }
@@ -344,7 +343,7 @@ canvas { max-width: 100%; }
 <!-- ═══ HEADER ═══ -->
 <div class="header">
   <div class="header-left">
-    <div class="nx-badge">NX</div>
+    <div class="nx-badge"><img src="https://www.nipponexpress-holdings.com/favicon.ico" alt="NX Logo"></div>
     <div>
       <div class="header-title">Warehouse Intelligence Center</div>
       <div class="header-sub">Sony Indonesia &nbsp;·&nbsp; CAK_SNYY &nbsp;·&nbsp; NX-GLOW WMS</div>
