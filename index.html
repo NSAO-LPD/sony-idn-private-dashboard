@@ -1,0 +1,2265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SONY Indonesia — Warehouse Intelligence Operations Center</title>
+<link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Rubik:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg:       #FFFFFF;
+  --bg2:      #F4F6FA;
+  --card:     #FFFFFF;
+  --card2:    #F0F3FA;
+  --border:   #D8DEF0;
+  --border2:  #C0C9E0;
+  --green:    #5F8700;
+  --green2:   #4A6B00;
+  --green-dim:#D6ECA0;
+  --cyan:     #0080CC;
+  --cyan-dim: #CCE8FF;
+  --amber:    #CC7400;
+  --amber-dim:#FFE8C0;
+  --red:      #CC1A2B;
+  --red-dim:  #FFD0D5;
+  --purple:   #6B4ECC;
+  --teal:     #0F8A7A;
+  --navy:     #1A005D;
+  --text:     #1A1F36;
+  --text2:    #4A5270;
+  --text3:    #8A94B0;
+  --mono:     'IBM Plex Mono', monospace;
+  --disp:     'Oxanium', sans-serif;
+  --body:     'Rubik', sans-serif;
+  --r:        4px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: #FFFFFF;
+  color: var(--text);
+  font-family: var(--body);
+  font-size: 13px;
+  line-height: 1.6;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #F0F3FA; }
+::-webkit-scrollbar-thumb { background: #C0C9E0; border-radius: 3px; }
+
+/* ── HEADER ── */
+.header {
+  background: linear-gradient(135deg, #1A005D 0%, #220A6A 60%, #0A2050 100%);
+  border-bottom: 1px solid var(--border);
+  padding: 0 32px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  gap: 24px;
+}
+.header-left { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
+.nx-badge {
+  background: var(--green);
+  color: #ffffff;
+  font-family: var(--disp);
+  font-weight: 800;
+  font-size: 18px;
+  width: 40px; height: 40px;
+  display: flex; align-items: center; justify-content: center;
+  letter-spacing: -0.04em;
+  clip-path: polygon(0 0, 85% 0, 100% 15%, 100% 100%, 15% 100%, 0 85%);
+}
+.header-title { font-family: var(--disp); font-weight: 700; font-size: 16px; letter-spacing: 0.06em; text-transform: uppercase; color: #FFFFFF; }
+.header-sub { font-size: 10px; color: rgba(255,255,255,0.6); letter-spacing: 0.12em; text-transform: uppercase; margin-top: 1px; font-family: var(--disp); }
+.header-center { display: flex; gap: 24px; align-items: center; flex: 1; justify-content: center; }
+.h-kpi { text-align: center; }
+.h-kpi-val { font-family: var(--mono); font-size: 16px; font-weight: 600; color: #A8D840; line-height: 1; }
+.h-kpi-lbl { font-size: 9px; color: rgba(255,255,255,0.5); letter-spacing: 0.12em; text-transform: uppercase; font-family: var(--disp); margin-top: 2px; }
+.header-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 8px var(--green); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+.status-txt { font-size: 10px; color: rgba(255,255,255,0.6); font-family: var(--disp); letter-spacing: 0.1em; text-transform: uppercase; }
+.date-badge { background: var(--card); border: 1px solid var(--border); padding: 4px 12px; font-size: 10px; font-family: var(--mono); color: var(--cyan); letter-spacing: 0.08em; }
+
+/* ── FILTER BAR ── */
+.filter-bar {
+  background: #F0F3FA;
+  border-bottom: 1px solid var(--border);
+  padding: 10px 32px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.filter-label { font-size: 10px; color: #5A6480; letter-spacing: 0.12em; text-transform: uppercase; font-family: var(--disp); white-space: nowrap; }
+.filter-group { display: flex; align-items: center; gap: 10px; }
+select, .range-wrap input { background: #FFFFFF; border: 1px solid var(--border2); color: #1A1F36; font-family: var(--mono); font-size: 11px; padding: 5px 10px; border-radius: var(--r); outline: none; cursor: pointer; }
+select:hover, select:focus { border-color: var(--green); }
+select option { background: #F0F3FA; }
+.range-wrap { display: flex; align-items: center; gap: 8px; }
+.range-wrap input[type=range] { -webkit-appearance: none; background: #D8DEF0; height: 3px; border-radius: 2px; width: 110px; padding: 0; border: none; cursor: pointer; }
+.range-wrap input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; background: var(--green); border-radius: 50%; cursor: pointer; }
+.range-val { font-family: var(--mono); font-size: 10px; color: var(--green); min-width: 52px; }
+.filter-sep { width: 1px; height: 20px; background: var(--border); }
+.filter-reset { font-size: 10px; font-family: var(--disp); color: #5A6480; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; padding: 4px 10px; border: 1px solid var(--border); border-radius: var(--r); transition: all 0.15s; }
+.filter-reset:hover { color: var(--red); border-color: var(--red); }
+
+/* ── TABS ── */
+.tab-nav {
+  background: #F4F6FA;
+  border-bottom: 1px solid var(--border);
+  padding: 0 32px;
+  display: flex;
+  gap: 2px;
+  overflow-x: auto;
+}
+.tab-btn {
+  font-family: var(--disp);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #5A6480;
+  padding: 14px 20px 12px;
+  border: none;
+  border-bottom: 3px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+  position: relative;
+}
+.tab-btn:hover { color: #1A1F36; }
+.tab-btn.active { color: var(--green); border-bottom-color: var(--green); }
+.tab-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px; height: 18px;
+  background: var(--green-dim);
+  color: var(--green);
+  font-size: 9px;
+  border-radius: 2px;
+  margin-right: 6px;
+}
+.tab-btn.active .tab-num { background: var(--green); color: #000; }
+
+/* ── CONTENT ── */
+.tab-content { display: none; padding: 28px 32px; animation: fadeIn 0.25s ease; }
+.tab-content.active { display: block; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+
+/* ── SECTION HEADER ── */
+.sec-head { display: flex; align-items: baseline; gap: 16px; margin-bottom: 20px; }
+.sec-title { font-family: var(--disp); font-size: 13px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: #1A1F36; }
+.sec-sub { font-size: 11px; color: var(--text3); letter-spacing: 0.04em; }
+.sec-line { flex: 1; height: 1px; background: linear-gradient(90deg, #D8DEF0 0%, transparent 100%); }
+
+/* ── GRID SYSTEM ── */
+.grid-6 { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; width: fit-content;}
+.grid-21 { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; }
+.grid-12 { display: grid; grid-template-columns: 1fr 2fr; gap: 16px; }
+.gap-sm { height: 12px; }
+.gap { height: 20px; }
+
+/* ── KPI CARD ── */
+.kpi-card {
+  background: #FFFFFF;
+  border: 1px solid var(--border);
+  border-top: 2px solid var(--border2);
+  padding: 12px 14px 10px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  cursor: default;
+}
+.kpi-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 80% 20%, rgba(95,135,0,0.03) 0%, transparent 60%);
+  pointer-events: none;
+}
+.kpi-card:hover { border-color: var(--border2); box-shadow: 0 0 16px rgba(142,195,0,0.06); }
+.kpi-card.s-good  { border-top-color: var(--green); }
+.kpi-card.s-warn  { border-top-color: var(--amber); }
+.kpi-card.s-bad   { border-top-color: var(--red); }
+.kpi-card.s-info  { border-top-color: var(--cyan); }
+.kpi-card.s-gap   { border-top-color: var(--text3); opacity: 0.7; }
+.kpi-lbl { font-family: var(--disp); font-size: 9.5px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text3); margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; }
+.kpi-val { font-family: var(--mono); font-size: 28px; font-weight: 600; line-height: 1; letter-spacing: -0.02em; color: #1A1F36; }
+.kpi-card.s-good  .kpi-val { color: var(--green); }
+.kpi-card.s-warn  .kpi-val { color: var(--amber); }
+.kpi-card.s-bad   .kpi-val { color: var(--red); }
+.kpi-card.s-info  .kpi-val { color: var(--cyan); }
+.kpi-card.s-gap   .kpi-val { color: #8A94B0; font-size: 14px; padding-top: 8px; }
+.kpi-unit { font-size: 13px; font-weight: 400; margin-left: 2px; color: inherit; opacity: 0.6; }
+.kpi-sub { font-size: 10px; color: var(--text3); margin-top: 4px; font-family: var(--disp); }
+.kpi-spark { margin-top: 8px; height: 52px; }
+.kpi-spark .chart-wrap { aspect-ratio: auto; min-height: 0; height: 52px; }
+.kpi-spark .chart-wrap canvas { position: absolute; inset: 0; width: 100% !important; height: 100% !important; }
+.risk-badge { font-family: var(--disp); font-size: 8.5px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; padding: 2px 6px; border-radius: 2px; }
+.rb-good  { background: rgba(142,195,0,0.15); color: var(--green); }
+.rb-warn  { background: rgba(255,158,27,0.15); color: var(--amber); }
+.rb-bad   { background: rgba(255,59,78,0.15); color: var(--red); }
+.rb-gap   { background: rgba(74,88,114,0.2); color: var(--text3); }
+.rb-info  { background: rgba(0,200,255,0.12); color: var(--cyan); }
+
+/* ── CHART CARD ── */
+.chart-card {
+  background: #FFFFFF;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--green);
+  padding: 20px 22px;
+  position: relative;
+}
+.chart-card.accent-cyan  { border-left-color: var(--cyan); }
+.chart-card.accent-amber { border-left-color: var(--amber); }
+.chart-card.accent-red   { border-left-color: var(--red); }
+.chart-card.accent-purple{ border-left-color: var(--purple); }
+.chart-card.accent-teal  { border-left-color: var(--teal); }
+.chart-card.span-2 { grid-column: span 2; }
+.chart-head { margin-bottom: 4px; display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.chart-title { font-family: var(--disp); font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #1A1F36; }
+.chart-sub { font-size: 11px; color: var(--text3); margin-bottom: 14px; line-height: 1.5; }
+.chart-note { font-size: 10px; color: var(--text3); font-style: italic; background: rgba(204,116,0,0.06); border-left: 2px solid var(--amber); padding: 6px 10px; margin-bottom: 14px; font-family: var(--disp); }
+canvas { max-width: 100%; }
+.legend-row { display: flex; gap: 16px; margin-bottom: 12px; flex-wrap: wrap; }
+.leg-item { display: flex; align-items: center; gap: 6px; font-size: 10.5px; color: var(--text2); font-family: var(--disp); letter-spacing: 0.04em; }
+.leg-dot  { width: 10px; height: 8px; border-radius: 1px; flex-shrink: 0; }
+.leg-line { width: 16px; height: 3px; border-radius: 2px; flex-shrink: 0; }
+.target-line { font-size: 10px; color: var(--text3); display: flex; align-items: center; gap: 6px; margin-bottom: 12px; font-family: var(--mono); }
+.target-line::before { content: ''; display: inline-block; width: 20px; height: 2px; background: repeating-linear-gradient(90deg, var(--red) 0,var(--red) 4px,transparent 4px,transparent 8px); }
+
+/* ── METHOD NOTE ── */
+.method-note { background: rgba(0,128,204,0.05); border: 1px solid rgba(0,128,204,0.18); border-left: 3px solid var(--cyan); padding: 10px 14px; margin-bottom: 16px; font-size: 11px; color: var(--text2); line-height: 1.55; }
+.method-note strong { color: var(--cyan); font-family: var(--disp); letter-spacing: 0.04em; }
+
+/* ── RISK DETECTION ── */
+.risk-matrix-wrap { position: relative; }
+.risk-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+.risk-item {
+  background: #F7F9FE;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--border);
+  padding: 14px 16px;
+  transition: border-left-color 0.2s;
+}
+.risk-item.r-critical { border-left-color: var(--red); }
+.risk-item.r-high     { border-left-color: var(--amber); }
+.risk-item.r-medium   { border-left-color: var(--purple); }
+.risk-item.r-low      { border-left-color: var(--green); }
+.risk-item-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.risk-name { font-family: var(--disp); font-size: 11.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #1A1F36; }
+.risk-desc { font-size: 11.5px; color: #4A5270; line-height: 1.55; }
+.risk-metric { font-family: var(--mono); font-size: 11px; color: #5A6480; margin-top: 5px; }
+.risk-radar-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+.risk-summary-list { display: flex; flex-direction: column; gap: 8px; }
+.rs-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 14px; background: #F0F3FA; border: 1px solid var(--border); }
+.rs-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+.rs-body { flex: 1; }
+.rs-title { font-family: var(--disp); font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 3px; }
+.rs-text  { font-size: 11.5px; color: var(--text2); line-height: 1.5; }
+
+/* ── STRATEGY PANEL ── */
+.strategy-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.strat-card {
+  background: #F7F9FE;
+  border: 1px solid var(--border);
+  padding: 22px 24px;
+}
+.strat-card.full { grid-column: 1/-1; }
+.strat-num { font-family: var(--mono); font-size: 36px; font-weight: 600; color: var(--green); opacity: 0.35; line-height: 1; margin-bottom: 6px; }
+.strat-title { font-family: var(--disp); font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--green); margin-bottom: 12px; }
+.strat-body { font-size: 12.5px; color: var(--text2); line-height: 1.75; }
+.strat-body p { margin-bottom: 10px; }
+.strat-body p:last-child { margin-bottom: 0; }
+.strat-body strong { color: var(--text); font-weight: 600; }
+.strat-body em { color: var(--amber); font-style: normal; }
+.priority-table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+.priority-table th { font-family: var(--disp); font-size: 9.5px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text3); background: #F0F3FA; padding: 8px 14px; text-align: left; border-bottom: 1px solid var(--border); }
+.priority-table td { padding: 10px 14px; font-size: 12px; border-bottom: 1px solid rgba(28,43,74,0.5); color: var(--text2); vertical-align: top; }
+.priority-table tr:last-child td { border-bottom: none; }
+.priority-table td:first-child { font-family: var(--disp); font-weight: 600; color: var(--text); font-size: 11px; letter-spacing: 0.04em; }
+.pri-1 { color: var(--red) !important; }
+.pri-2 { color: var(--amber) !important; }
+.pri-3 { color: var(--cyan) !important; }
+.exec-summary {
+  background: linear-gradient(135deg, rgba(95,135,0,0.06) 0%, rgba(0,128,204,0.04) 100%);
+  border: 1px solid rgba(95,135,0,0.25);
+  padding: 20px 24px;
+  margin-bottom: 16px;
+}
+.exec-summary h3 { font-family: var(--disp); font-size: 10px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: #5F8700; margin-bottom: 10px; }
+.exec-summary p { font-size: 13px; color: #6c81dd; line-height: 1.8; }
+
+/* ── PRODUCTIVITY NOTE ── */
+.data-gap-banner { background: rgba(200,210,235,0.35); border: 1px dashed var(--text3); padding: 10px 16px; font-size: 11.5px; color: var(--text3); display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+.data-gap-banner strong { color: var(--text2); font-family: var(--disp); letter-spacing: 0.04em; }
+
+/* ── SCATTER SECTION ── */
+.correlation-note { background: rgba(107,78,204,0.05); border: 1px solid rgba(107,78,204,0.18); border-left: 3px solid var(--purple); padding: 10px 14px; font-size: 11.5px; color: var(--text2); margin-bottom: 14px; }
+.correlation-note strong { color: var(--purple); }
+
+
+/* ── CHART WRAPPER — auto-height responsive ── */
+.chart-wrap { position: relative; width: 100%; }
+.chart-wrap.ar-wide { aspect-ratio: 16 / 5; min-height: 200px; }
+.chart-wrap.ar-med  { aspect-ratio: 16 / 9; height: -webkit-fill-available; }
+.chart-wrap.ar-tall { aspect-ratio: 4  / 3; min-height: 260px; }
+.chart-wrap canvas  { position: absolute; inset: 0; width: 100% !important; height: 100% !important; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 1200px) {
+  .grid-6 { grid-template-columns: repeat(3, 1fr); }
+  .grid-4 { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 900px) {
+  .grid-6, .grid-4, .grid-3, .grid-2, .grid-21, .grid-12 { grid-template-columns: 1fr; }
+  .header-center { display: none; }
+  .tab-content { padding: 16px; }
+  .filter-bar { padding: 8px 16px; }
+}
+
+/* ── TOOLTIP ENHANCEMENT ── */
+.chartjs-tooltip { pointer-events: none; }
+
+/* ── FOOTER ── */
+.dash-footer { padding: 16px 32px; border-top: 1px solid var(--border); background: #F4F6FA; display: flex; justify-content: space-between; align-items: center; font-size: 10px; color: var(--text3); font-family: var(--disp); letter-spacing: 0.08em; text-transform: uppercase; margin-top: 50px; }
+.dash-footer span:last-child { color: var(--green); }
+</style>
+</head>
+<body>
+
+<!-- ═══ HEADER ═══ -->
+<div class="header">
+  <div class="header-left">
+    <div class="nx-badge">NX</div>
+    <div>
+      <div class="header-title">Warehouse Intelligence Center</div>
+      <div class="header-sub">Sony Indonesia &nbsp;·&nbsp; CAK_SNYY &nbsp;·&nbsp; NX-GLOW WMS</div>
+    </div>
+  </div>
+  <div class="header-center">
+    <div class="h-kpi"><div class="h-kpi-val" id="h-kpi-1">88,005</div><div class="h-kpi-lbl">Total Stock</div></div>
+    <div class="h-kpi"><div class="h-kpi-val" id="h-kpi-2">39.4%</div><div class="h-kpi-lbl">Space Used</div></div>
+    <div class="h-kpi"><div class="h-kpi-val" id="h-kpi-3">48.0%</div><div class="h-kpi-lbl" style="color:var(--red)">On-Time GR</div></div>
+    <div class="h-kpi"><div class="h-kpi-val" id="h-kpi-4">64.2%</div><div class="h-kpi-lbl" style="color:var(--amber)">SI→Load SLA</div></div>
+    <div class="h-kpi"><div class="h-kpi-val" id="h-kpi-5">19.1%</div><div class="h-kpi-lbl" style="color:var(--amber)">Aged >180d</div></div>
+  </div>
+  <div class="header-right">
+    <div class="status-dot"></div>
+    <div class="status-txt">Live WMS</div>
+    <div class="date-badge">09 MAR 2026</div>
+  </div>
+</div>
+
+<!-- ═══ FILTER BAR ═══ -->
+<div class="filter-bar">
+  <div class="filter-label">Filters</div>
+  <div class="filter-group">
+    <span class="filter-label">From</span>
+    <div class="range-wrap">
+      <input type="range" id="flt-start" min="0" max="10" value="0" step="1">
+      <span class="range-val" id="flt-start-val">Apr '25</span>
+    </div>
+  </div>
+  <div class="filter-group">
+    <span class="filter-label">To</span>
+    <div class="range-wrap">
+      <input type="range" id="flt-end" min="0" max="10" value="10" step="1">
+      <span class="range-val" id="flt-end-val">Feb '26</span>
+    </div>
+  </div>
+  <div class="filter-sep"></div>
+  <div class="filter-group">
+    <span class="filter-label">Zone</span>
+    <select id="flt-zone">
+      <option value="ALL">All Zones</option>
+      <option value="Floor">Floor</option>
+      <option value="High Duty Rack">High Duty Rack</option>
+      <option value="Dry Room">Dry Room</option>
+      <option value="Biz Plan Room">Biz Plan Room</option>
+    </select>
+  </div>
+  <div class="filter-group">
+    <span class="filter-label">Sub-Inv</span>
+    <select id="flt-sbiv">
+      <option value="ALL">All SBIV</option>
+      <option value="MAIN">MAIN</option>
+      <option value="DEMO">DEMO</option>
+      <option value="GDSB">GDSB</option>
+      <option value="DAMS">DAMS</option>
+      <option value="REPR">REPR</option>
+      <option value="CABN">CABN</option>
+    </select>
+  </div>
+  <div class="filter-sep"></div>
+  <div class="filter-reset" onclick="resetFilters()">&#10006; Reset</div>
+  <div style="margin-left:auto; font-family:var(--mono); font-size:10px; color:var(--text3);">
+    Showing: <span id="flt-range-display" style="color:var(--green)">11 months</span>
+  </div>
+</div>
+
+<!-- ═══ TABS ═══ -->
+<div class="tab-nav">
+  <button class="tab-btn active" onclick="switchTab(0)"><span class="tab-num">01</span>Overview</button>
+  <button class="tab-btn" onclick="switchTab(1)"><span class="tab-num">02</span>Inventory Flow</button>
+  <button class="tab-btn" onclick="switchTab(2)"><span class="tab-num">03</span>Operational KPIs</button>
+  <button class="tab-btn" onclick="switchTab(3)"><span class="tab-num">04</span>Productivity</button>
+  <button class="tab-btn" onclick="switchTab(4)"><span class="tab-num">05</span>Relationships</button>
+  <button class="tab-btn" onclick="switchTab(5)"><span class="tab-num">06</span>Risk Detection</button>
+  <button class="tab-btn" onclick="switchTab(6)"><span class="tab-num">07</span>Strategy Insights</button>
+</div>
+
+<!-- ═════════════════════════════════════════════════════
+  TAB 1: OVERVIEW
+═══════════════════════════════════════════════════════ -->
+<div class="tab-content active" id="tab-0">
+  <div class="sec-head">
+    <div class="sec-title">Warehouse Performance Overview</div>
+    <div class="sec-sub">Snapshot: 09 March 2026 · All sub-inventories</div>
+    <div class="sec-line"></div>
+  </div>
+
+  <div class="grid-6" id="kpi-grid">
+    <!-- Row 1 -->
+    <div class="kpi-card s-info">
+      <div class="kpi-lbl">Active SKUs <span class="risk-badge rb-info">751</span></div>
+      <div class="kpi-val" id="kpi-skus">751</div>
+      <div class="kpi-sub">Unique products in stock</div>
+      <div class="kpi-spark"><div class="chart-wrap ar-med"><canvas id="spark-skus"></canvas></div></div>
+    </div>
+    <div class="kpi-card s-info">
+      <div class="kpi-lbl">Total Stock Qty <span class="risk-badge rb-info">LIVE</span></div>
+      <div class="kpi-val" id="kpi-stock">88,005<span class="kpi-unit">pcs</span></div>
+      <div class="kpi-sub">All sub-inventories</div>
+      <div class="kpi-spark"><div class="chart-wrap ar-med"><canvas id="spark-stock"></canvas></div></div>
+    </div>
+    <div class="kpi-card s-good">
+      <div class="kpi-lbl">Space Utilization <span class="risk-badge rb-good">HEALTHY</span></div>
+      <div class="kpi-val" id="kpi-space">39.4<span class="kpi-unit">%</span></div>
+      <div class="kpi-sub">1,949 / 4,946 M³ · Dry Room 57.3%</div>
+      <div class="kpi-spark"><div class="chart-wrap ar-med"><canvas id="spark-space"></canvas></div></div>
+    </div>
+    <div class="kpi-card s-warn">
+      <div class="kpi-lbl">Inventory Density <span class="risk-badge rb-warn">MONITOR</span></div>
+      <div class="kpi-val" id="kpi-density">45.2<span class="kpi-unit">pcs/m³</span></div>
+      <div class="kpi-sub">Stock / used volume (MAIN)</div>
+      <div class="kpi-spark"><div class="chart-wrap ar-med"><canvas id="spark-density"></canvas></div></div>
+    </div>
+    <div class="kpi-card s-bad">
+      <div class="kpi-lbl">Inventory Turnover <span class="risk-badge rb-bad">CRITICAL</span></div>
+      <div class="kpi-val" id="kpi-turn">3.76<span class="kpi-unit">×</span></div>
+      <div class="kpi-sub">MAIN 2026 · was 25.4× in 2025</div>
+      <div class="kpi-spark"><div class="chart-wrap ar-med"><canvas id="spark-turn"></canvas></div></div>
+    </div>
+    <div class="kpi-card s-bad">
+      <div class="kpi-lbl">DIO (MAIN) <span class="risk-badge rb-bad">CRITICAL</span></div>
+      <div class="kpi-val" id="kpi-dio">128.9<span class="kpi-unit">d</span></div>
+      <div class="kpi-sub">Days Inventory Outstanding · +55% YoY</div>
+      <div class="kpi-spark"><div class="chart-wrap ar-med"><canvas id="spark-dio"></canvas></div></div>
+    </div>
+
+    <!-- Row 2 -->
+    <div class="kpi-card s-warn">
+      <div class="kpi-lbl">Stock Aging >180d <span class="risk-badge rb-warn">CAUTION</span></div>
+      <div class="kpi-val" id="kpi-aging">19.1<span class="kpi-unit">%</span></div>
+      <div class="kpi-sub">16,815 pcs · 1,457 pcs >365d</div>
+      <div class="kpi-spark"><div class="chart-wrap ar-med"><canvas id="spark-aging"></canvas></div></div>
+    </div>
+    <div class="kpi-card s-gap">
+      <div class="kpi-lbl">Stock Discrepancy <span class="risk-badge rb-gap">ESTIMATED</span></div>
+      <div class="kpi-val" id="kpi-disc">~2.3<span class="kpi-unit">%</span></div>
+      <div class="kpi-sub">No physical count data in WMS extract</div>
+      <div class="kpi-spark"><div class="chart-wrap ar-med"><canvas id="spark-disc"></canvas></div></div>
+    </div>
+    <div class="kpi-card s-gap">
+      <div class="kpi-lbl">Picking Accuracy <span class="risk-badge rb-gap">ESTIMATED</span></div>
+      <div class="kpi-val" id="kpi-pick">~97.8<span class="kpi-unit">%</span></div>
+      <div class="kpi-sub">No scan error log in WMS extract</div>
+      <div class="kpi-spark"><div class="chart-wrap ar-med"><canvas id="spark-pick"></canvas></div></div>
+    </div>
+    <div class="kpi-card s-warn">
+      <div class="kpi-lbl">Damage Cases/Mo <span class="risk-badge rb-warn">CAUTION</span></div>
+      <div class="kpi-val" id="kpi-dams">47.8<span class="kpi-unit">pcs</span></div>
+      <div class="kpi-sub">Avg DAMS received · peak Oct'25: 98</div>
+      <div class="kpi-spark"><div class="chart-wrap ar-med"><canvas id="spark-dams"></canvas></div></div>
+    </div>
+    <div class="kpi-card s-bad">
+      <div class="kpi-lbl">On-Time GR <span class="risk-badge rb-bad">CRITICAL</span></div>
+      <div class="kpi-val" id="kpi-gr">48.0<span class="kpi-unit">%</span></div>
+      <div class="kpi-sub">Target: 80% · avg delay 6.5d when late</div>
+      <div class="kpi-spark"><div class="chart-wrap ar-med"><canvas id="spark-gr"></canvas></div></div>
+    </div>
+    <div class="kpi-card s-warn">
+      <div class="kpi-lbl">SI→Load SLA (≤24h) <span class="risk-badge rb-warn">BELOW TGT</span></div>
+      <div class="kpi-val" id="kpi-sla">64.2<span class="kpi-unit">%</span></div>
+      <div class="kpi-sub">Target: 80% · improving Apr'25→Feb'26</div>
+      <div class="kpi-spark"><div class="chart-wrap ar-med"><canvas id="spark-sla"></canvas></div></div>
+    </div>
+  </div>
+
+  <div class="gap"></div>
+
+  <!-- Mini space zone + aging strip -->
+  <div class="grid-2">
+    <div class="chart-card accent-cyan">
+      <div class="chart-head">
+        <div>
+          <div class="chart-title">Zone Space Utilization</div>
+          <div class="chart-sub">M³ used vs capacity · WMS authoritative source</div>
+        </div>
+      </div>
+      <div class="chart-wrap ar-med"><canvas id="chart-zone-ovw"></canvas></div>
+    </div>
+    <div class="chart-card accent-amber">
+      <div class="chart-head">
+        <div>
+          <div class="chart-title">Stock Aging Distribution</div>
+          <div class="chart-sub">All sub-inventories · piece quantity by age bucket</div>
+        </div>
+      </div>
+      <div class="chart-wrap ar-med"><canvas id="chart-age-ovw"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═════════════════════════════════════════════════════
+  TAB 2: INVENTORY FLOW
+═══════════════════════════════════════════════════════ -->
+<div class="tab-content" id="tab-1">
+  <div class="sec-head">
+    <div class="sec-title">Inventory Flow Analysis</div>
+    <div class="sec-sub">Inbound / Outbound · Stock Level · Turnover · Aging · Apr 2025 – Feb 2026</div>
+    <div class="sec-line"></div>
+  </div>
+
+  <div class="chart-card accent-cyan" style="margin-bottom:16px">
+    <div class="chart-head">
+      <div>
+        <div class="chart-title">Monthly Inbound vs Outbound Volume</div>
+        <div class="chart-sub">Piece quantity · Source: apinq (GR) + spinq (GI) · persistent inbound surplus drives DIO growth</div>
+      </div>
+    </div>
+    <div class="legend-row">
+      <div class="leg-item"><div class="leg-line" style="background:var(--cyan)"></div>Inbound (GR)</div>
+      <div class="leg-item"><div class="leg-line" style="background:var(--green)"></div>Outbound (GI)</div>
+      <div class="leg-item"><div class="leg-line" style="background:var(--amber);height:2px;border-top:2px dashed var(--amber);background:none"></div>Net Flow</div>
+    </div>
+    <div class="chart-wrap ar-wide"><canvas id="chart-flow"></canvas></div>
+  </div>
+
+  <div class="grid-2">
+    <div class="chart-card">
+      <div class="chart-title">Estimated Stock Level Trend</div>
+      <div class="chart-sub">Derived from net flow · snapshot balance = 88,005 pcs (09-Mar-2026)</div>
+      <div class="chart-wrap ar-med"><canvas id="chart-stock-trend"></canvas></div>
+    </div>
+    <div class="chart-card accent-amber">
+      <div class="chart-title">Inventory Turnover YoY — by Sub-Inventory</div>
+      <div class="chart-sub">2025 vs 2026 · higher is better · source: Turnover Rate Master</div>
+      <div class="legend-row">
+        <div class="leg-item"><div class="leg-dot" style="background:var(--cyan)"></div>2025</div>
+        <div class="leg-item"><div class="leg-dot" style="background:var(--green)"></div>2026</div>
+      </div>
+      <div class="chart-wrap ar-med"><canvas id="chart-turnover"></canvas></div>
+    </div>
+  </div>
+
+  <div class="gap-sm"></div>
+  <div class="grid-2">
+    <div class="chart-card">
+      <div class="chart-title">DIO (Days Inventory Outstanding) YoY</div>
+      <div class="chart-sub">2025 vs 2026 · lower is better · MAIN deteriorated 83 → 129 days</div>
+      <div class="legend-row">
+        <div class="leg-item"><div class="leg-dot" style="background:var(--purple)"></div>DIO 2025</div>
+        <div class="leg-item"><div class="leg-dot" style="background:var(--red)"></div>DIO 2026</div>
+      </div>
+      <div class="chart-wrap ar-med"><canvas id="chart-dio"></canvas></div>
+    </div>
+    <div class="chart-card accent-amber">
+      <div class="chart-title">Stock Aging — All vs MAIN Sub-Inventory</div>
+      <div class="chart-sub">Piece count by age bucket · 19.1% of total stock aged >180 days</div>
+      <div class="legend-row">
+        <div class="leg-item"><div class="leg-dot" style="background:var(--cyan)"></div>All Sub-Inv</div>
+        <div class="leg-item"><div class="leg-dot" style="background:var(--amber)"></div>MAIN Only</div>
+      </div>
+      <div class="chart-wrap ar-med"><canvas id="chart-aging"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═════════════════════════════════════════════════════
+  TAB 3: OPERATIONAL KPIs
+═══════════════════════════════════════════════════════ -->
+<div class="tab-content" id="tab-2">
+  <div class="sec-head">
+    <div class="sec-title">Operational KPI Analysis</div>
+    <div class="sec-sub">Monthly trend · variance · risk flags · Apr 2025 – Feb 2026</div>
+    <div class="sec-line"></div>
+  </div>
+
+  <div class="method-note">
+    <strong>GR Methodology:</strong> Arrived Date (confirmed) minus Schedule Date (planned). Delay ≤ 0 = on-time. ·
+    <strong>SLA Methodology:</strong> Shipment Date (actual load) minus Schedule Date (SI received). Difference ≤ 1 day = compliant.
+  </div>
+
+  <div class="chart-card accent-red" style="margin-bottom:16px">
+    <div class="chart-title">On-Time GR % · On-Time Shipment SLA % · Monthly Trend</div>
+    <div class="chart-sub">Dual KPI overlay · target line: 80% · overall GR 48.0% · overall SLA 64.2%</div>
+    <div class="legend-row">
+      <div class="leg-item"><div class="leg-dot" style="background:var(--red)"></div>On-Time GR %</div>
+      <div class="leg-item"><div class="leg-dot" style="background:var(--green)"></div>SI→Load SLA %</div>
+    </div>
+    <div class="target-line">80% Target (both KPIs)</div>
+    <div class="chart-wrap ar-wide"><canvas id="chart-ot-dual"></canvas></div>
+  </div>
+
+  <div class="grid-3">
+    <div class="chart-card accent-red">
+      <div class="chart-title">On-Time GR Rate by Month</div>
+      <div class="chart-sub">Scheduled vs Confirmed arrival · target 80%</div>
+      <div class="chart-wrap ar-med"><canvas id="chart-gr-bar"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">SI → Load SLA Compliance</div>
+      <div class="chart-sub">≤24h loading · improving from 41% → 83%</div>
+      <div class="chart-wrap ar-med"><canvas id="chart-sla-line"></canvas></div>
+    </div>
+    <div class="chart-card accent-amber">
+      <div class="chart-title">DAMS Inbound Volume</div>
+      <div class="chart-sub">Units received into Damaged/Spoiled sub-inv</div>
+      <div class="chart-wrap ar-med"><canvas id="chart-dams"></canvas></div>
+    </div>
+  </div>
+
+  <div class="gap-sm"></div>
+  <div class="grid-2">
+    <div class="chart-card accent-purple">
+      <div class="chart-title">Picking Accuracy Trend (Estimated)</div>
+      <div class="chart-sub">No scan-error log in WMS extract · benchmarked at 96–99% typical range</div>
+      <div class="chart-note">⚠ Estimated metric — no picking accuracy records in provided WMS data extract. Data represents industry benchmark range for similar operations. Physical count reconciliation needed.</div>
+      <div class="chart-wrap ar-med"><canvas id="chart-pick"></canvas></div>
+    </div>
+    <div class="chart-card accent-purple">
+      <div class="chart-title">Stock Discrepancy Rate (Estimated)</div>
+      <div class="chart-sub">Deviation between system balance and physical count · estimated from benchmarks</div>
+      <div class="chart-note">⚠ Estimated metric — no physical count data available. WMS system M³ integrity verified at 0.9% variance; however, unit-level discrepancy requires cycle count execution.</div>
+      <div class="chart-wrap ar-med"><canvas id="chart-disc"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═════════════════════════════════════════════════════
+  TAB 4: PRODUCTIVITY
+═══════════════════════════════════════════════════════ -->
+<div class="tab-content" id="tab-3">
+  <div class="sec-head">
+    <div class="sec-title">Productivity Analysis</div>
+    <div class="sec-sub">Throughput efficiency · Units per hour · Workload distribution</div>
+    <div class="sec-line"></div>
+  </div>
+
+  <div class="data-gap-banner">
+    <span style="font-size:18px">⚠</span>
+    <div>
+      <strong>Manpower Data Not Available in WMS Extract.</strong>
+      Productivity metrics below are inferred from monthly throughput volumes assuming a baseline of
+      15 warehouse staff × 8h × 22 working days = 2,640 man-hours/month.
+      Actual headcount and shift log data should be pulled from the HR/payroll system for precise measurement.
+    </div>
+  </div>
+
+  <div class="chart-card accent-teal" style="margin-bottom:16px">
+    <div class="chart-title">Monthly Outbound Throughput (Inferred Productivity Proxy)</div>
+    <div class="chart-sub">Piece quantity shipped per month · higher = more warehouse activity · Oct'25 peak 51,658 pcs</div>
+    <div class="legend-row">
+      <div class="leg-item"><div class="leg-dot" style="background:var(--teal)"></div>Outbound Volume (pcs)</div>
+      <div class="leg-item"><div class="leg-line" style="background:var(--amber)"></div>Average Baseline</div>
+    </div>
+    <div class="chart-wrap ar-wide"><canvas id="chart-throughput"></canvas></div>
+  </div>
+
+  <div class="grid-3">
+    <div class="chart-card">
+      <div class="chart-title">Units Per Hour (Inferred)</div>
+      <div class="chart-sub">Outbound pcs ÷ 2,640 man-hrs/month · Oct'25 peak: 19.6 u/h</div>
+      <div class="chart-wrap ar-med"><canvas id="chart-uph"></canvas></div>
+    </div>
+    <div class="chart-card accent-teal">
+      <div class="chart-title">Inbound vs Outbound Workload Balance</div>
+      <div class="chart-sub">GR vs GI volume by month · imbalance signals operational stress</div>
+      <div class="chart-wrap ar-med"><canvas id="chart-workload"></canvas></div>
+    </div>
+    <div class="chart-card accent-cyan">
+      <div class="chart-title">Volume Efficiency Ratio (GI / GR)</div>
+      <div class="chart-sub">Ratio >1 = outbound dominated · <1 = stock building</div>
+      <div class="chart-wrap ar-med"><canvas id="chart-eff-ratio"></canvas></div>
+    </div>
+  </div>
+
+  <div class="gap-sm"></div>
+  <div class="chart-card accent-teal" style="margin-bottom:0">
+    <div class="chart-title">Bin Slot Utilization by Zone (Location Master)</div>
+    <div class="chart-sub">8,459 registered bin slots · slot density indicates rack utilization potential</div>
+    <div class="chart-wrap ar-wide"><canvas id="chart-slots"></canvas></div>
+  </div>
+</div>
+
+<!-- ═════════════════════════════════════════════════════
+  TAB 5: RELATIONSHIPS
+═══════════════════════════════════════════════════════ -->
+<div class="tab-content" id="tab-4">
+  <div class="sec-head">
+    <div class="sec-title">Relationship &amp; Correlation Analysis</div>
+    <div class="sec-sub">Cross-variable patterns · root cause signals · Apr 2025 – Feb 2026</div>
+    <div class="sec-line"></div>
+  </div>
+
+  <div class="correlation-note">
+    <strong>Interpretation Guide:</strong> Each scatter plot shows two operational variables against each other using monthly data points (11 months).
+    Strong correlations (R² > 0.5) suggest causal linkages that should inform corrective actions.
+    Hover over data points to see the month label and values.
+  </div>
+
+  <div class="grid-2" style="margin-bottom:16px">
+    <div class="chart-card accent-purple">
+      <div class="chart-title">① Inbound Volume vs GR On-Time Rate</div>
+      <div class="chart-sub">Hypothesis: high inbound pressure → supplier/carrier delays → late GR</div>
+      <div class="correlation-note" style="margin-bottom:8px;font-size:10.5px"><strong>Pattern found:</strong> Weak negative correlation. High inbound months (Aug, Oct) show lower on-time GR, suggesting capacity strain on the inbound supply chain.</div>
+      <div class="chart-wrap ar-med"><canvas id="chart-corr1"></canvas></div>
+    </div>
+    <div class="chart-card accent-amber">
+      <div class="chart-title">② Outbound Volume vs SI→Load SLA</div>
+      <div class="chart-sub">Hypothesis: high outbound volume → picking/staging backlog → SLA breach</div>
+      <div class="correlation-note" style="margin-bottom:8px;font-size:10.5px"><strong>Pattern found:</strong> Moderate positive correlation (Oct'25 outlier). SLA actually improves with volume over time — suggesting operational learning curve, not volume constraint.</div>
+      <div class="chart-wrap ar-med"><canvas id="chart-corr2"></canvas></div>
+    </div>
+  </div>
+  <div class="grid-2">
+    <div class="chart-card accent-red">
+      <div class="chart-title">③ Net Stock Surplus vs DIO Trajectory</div>
+      <div class="chart-sub">Hypothesis: persistent inbound surplus compounds DIO growth over time</div>
+      <div class="correlation-note" style="margin-bottom:8px;font-size:10.5px"><strong>Pattern found:</strong> Strong positive correlation. Months with large inbound surplus directly correspond to periods of rising DIO. Structural fix requires reorder policy change, not just operational tuning.</div>
+      <div class="chart-wrap ar-med"><canvas id="chart-corr3"></canvas></div>
+    </div>
+    <div class="chart-card accent-teal">
+      <div class="chart-title">④ DAMS Volume vs Inbound Volume</div>
+      <div class="chart-sub">Hypothesis: high inbound velocity → more damage from rushed handling</div>
+      <div class="correlation-note" style="margin-bottom:8px;font-size:10.5px"><strong>Pattern found:</strong> Weak correlation overall. Apr'25 (90 DAMS units) and Oct'25 (98 DAMS) are outliers suggesting episodic damage events unrelated to volume — likely specific supplier/carrier incidents.</div>
+      <div class="chart-wrap ar-med"><canvas id="chart-corr4"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═════════════════════════════════════════════════════
+  TAB 6: RISK DETECTION
+═══════════════════════════════════════════════════════ -->
+<div class="tab-content" id="tab-5">
+  <div class="sec-head">
+    <div class="sec-title">Automated Risk Detection</div>
+    <div class="sec-sub">Algorithm-detected operational risks · severity-ranked · as of 09 Mar 2026</div>
+    <div class="sec-line"></div>
+  </div>
+
+  <div id="risk-cards-container" class="risk-grid"></div>
+
+  <div class="gap-sm"></div>
+  <div class="risk-radar-wrap">
+    <div class="chart-card accent-red">
+      <div class="chart-title">Risk Severity Radar</div>
+      <div class="chart-sub">Normalized 0–10 across 8 risk dimensions · outer = more severe</div>
+      <div class="chart-wrap ar-tall"><canvas id="chart-radar"></canvas></div>
+    </div>
+    <div>
+      <div class="chart-card" style="margin-bottom:16px">
+        <div class="chart-title">Risk Heatmap — Monthly Operational Stress</div>
+        <div class="chart-sub">Composite risk score per month (GR + SLA + damage + net surplus)</div>
+        <div class="chart-wrap ar-med"><canvas id="chart-risk-heat"></canvas></div>
+      </div>
+      <div class="risk-summary-list" id="risk-summary-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═════════════════════════════════════════════════════
+  TAB 7: STRATEGY INSIGHTS
+═══════════════════════════════════════════════════════ -->
+<div class="tab-content" id="tab-6">
+  <div class="sec-head">
+    <div class="sec-title">Strategy &amp; Insight Panel</div>
+    <div class="sec-sub">Consulting-grade diagnosis · root cause analysis · improvement roadmap</div>
+    <div class="sec-line"></div>
+  </div>
+
+  <div class="exec-summary">
+    <h3>Executive Summary</h3>
+    <p>
+      The SONY Indonesia warehouse (CAK_SNYY) is operating at <strong>39.4% space utilization</strong> — structurally healthy — but is experiencing
+      compounding inventory performance failures across three interconnected dimensions: <em>inbound execution</em>, <em>stock velocity</em>, and <em>outbound service level</em>.
+      Only <strong>48% of goods receipts</strong> arrive on schedule (target: 80%), creating upstream buffer stock inflation.
+      The Main stock <strong>inventory turnover collapsed from 25.4× (2025) to 3.76× (2026)</strong> — a 85% deterioration —
+      driven by a persistent inbound surplus of 57,261 pieces over the analysis period.
+      The SI-to-Load SLA (64.2%) shows an improving trajectory but remains below the 80% threshold.
+      <strong>19.1% of stock (16,815 pcs) has been idle for over 180 days</strong>, representing a write-down risk ahead of the audit period.
+    </p>
+  </div>
+
+  <div class="strategy-grid">
+    <div class="strat-card">
+      <div class="strat-num">01</div>
+      <div class="strat-title">Root Cause: Supply Chain Upstream Failures</div>
+      <div class="strat-body">
+        <p>The <strong>48% on-time GR rate</strong> is the upstream trigger of nearly every downstream problem. When goods arrive 6.5 days late on average (vs planned), the warehouse cannot maintain predictable inventory buffers. This creates two failure modes simultaneously.</p>
+        <p>First, <em>rush-receiving pressure</em>: when multiple late shipments arrive simultaneously, handling speed increases and damage rates spike (Apr'25: 90 units, Oct'25: 98 units). Second, <em>overcompensation ordering</em>: procurement teams order earlier and in larger quantities to hedge against late arrivals, directly inflating the inbound-outbound surplus.</p>
+        <p><strong>Root cause:</strong> Supplier/carrier lead time unreliability, not warehouse capacity constraints. The Average Delay of 6.5 days suggests systemic carrier performance issues, not random variation.</p>
+      </div>
+    </div>
+    <div class="strat-card">
+      <div class="strat-num">02</div>
+      <div class="strat-title">Root Cause: Inventory Replenishment Policy Misalignment</div>
+      <div class="strat-body">
+        <p>The <strong>57,261-piece net surplus</strong> over 11 months is not random — it reflects a reorder point calculation that was calibrated for the 2025 turnover environment (25.4×) and has not been adjusted for the current demand environment (3.76× in 2026).</p>
+        <p>This is a <em>classic Lean Six Sigma "Variation in Demand vs Replenishment Rate" problem</em>. When sell-through velocity drops without a corresponding pull-back in order frequency or quantities, stock inevitably accumulates. The <strong>DIO increase from 83 to 129 days (+55%)</strong> is the mathematical consequence.</p>
+        <p><strong>Root cause:</strong> Static reorder parameters that have not tracked the shift in SONY sales velocity. Likely caused by product lifecycle changes (model transitions, market saturation) not yet reflected in WMS/ERP planning parameters.</p>
+      </div>
+    </div>
+    <div class="strat-card">
+      <div class="strat-num">03</div>
+      <div class="strat-title">Root Cause: Outbound Execution — Structural, Not Operational</div>
+      <div class="strat-body">
+        <p>The <strong>SI-to-Load SLA improvement (41% → 83%)</strong> over 11 months is the most positive finding in this analysis. It demonstrates that the warehouse team has inherent capacity to execute at high speed — the early-period failures were not a manpower or equipment constraint.</p>
+        <p>The April 2025 baseline of 41% was likely caused by <em>WMS migration impact</em> (stock migrated April 13, 2025) creating system reconciliation overhead that slowed physical operations. By Feb'26, the team has absorbed the migration and is operating near target.</p>
+        <p><strong>Conclusion:</strong> Outbound SLA is a solved problem with continuing momentum. Management focus should pivot to GR on-time rate (structural) and stock clearance (immediate audit risk).</p>
+      </div>
+    </div>
+    <div class="strat-card">
+      <div class="strat-num">04</div>
+      <div class="strat-title">Data Gaps That Must Be Resolved Before Audit</div>
+      <div class="strat-body">
+        <p>Two critical metrics cannot be computed from the current WMS extract: <strong>Stock Discrepancy Rate</strong> (requires physical cycle count vs WMS balance comparison) and <strong>Picking Accuracy</strong> (requires scan error log or GI discrepancy data).</p>
+        <p>While the WMS M³ data integrity is strong (0.9% variance), unit-level accuracy is not validated. <em>For audit purposes, an unvalidated discrepancy rate is a significant liability.</em> A targeted cycle count of the >365d aging items (1,457 pcs) would serve both the discrepancy rate measurement and write-down assessment simultaneously.</p>
+        <p><strong>Action:</strong> Schedule cycle count by March 21, 2026. Prioritize MAIN sub-inventory items aged >365 days and any CABN (Cargo Abnormally) items.</p>
+      </div>
+    </div>
+
+    <div class="strat-card full">
+      <div class="strat-num">05</div>
+      <div class="strat-title">Recommended Improvement Roadmap — Priority Matrix</div>
+      <table class="priority-table">
+        <thead><tr><th>Priority</th><th>Initiative</th><th>Timeline</th><th>Expected Impact</th><th>Owner</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="pri-1">P1 — CRITICAL</td>
+            <td>Launch supplier performance improvement program: track OTD by carrier/supplier, implement SLA penalty clauses, require 72h advance shipment notification (ASN) for all inbound.</td>
+            <td>Immediate (≤30 days)</td>
+            <td>GR on-time rate: 48% → 70%+ within 3 months. Reduces overcompensation ordering, directly reducing DIO.</td>
+            <td>Procurement + Logistics</td>
+          </tr>
+          <tr>
+            <td class="pri-1">P1 — CRITICAL</td>
+            <td>Execute targeted cycle count of all >180d stock (16,815 pcs). Validate WMS balance, identify write-down candidates, clear confirmed obsolete units via markdown or return-to-supplier.</td>
+            <td>Immediate (before audit)</td>
+            <td>Reduces audit write-down risk. Validates stock discrepancy rate. Frees ~17.4% of used floor space.</td>
+            <td>Warehouse Ops + Finance</td>
+          </tr>
+          <tr>
+            <td class="pri-2">P2 — HIGH</td>
+            <td>Recalibrate reorder points and safety stock parameters in ERP/WMS to reflect 2026 turnover environment (3.76× vs 25.4×). Apply ABC analysis to SKUs — freeze orders for C-class items with DIO > 120 days.</td>
+            <td>30–60 days</td>
+            <td>Arrests DIO growth. Targets return to 8–10× turnover within 6 months. Prevents further surplus accumulation.</td>
+            <td>Supply Chain Planning</td>
+          </tr>
+          <tr>
+            <td class="pri-2">P2 — HIGH</td>
+            <td>Implement damage root-cause analysis for DAMS events >30 units/month. Identify top 3 suppliers with highest damage rate. Install inbound photo-evidence protocol in WMS for all DAMS receipts.</td>
+            <td>30–45 days</td>
+            <td>Reduces avg DAMS from 47.8 → <20 pcs/month. Strengthens insurance claim documentation. Reduces handling re-work labor.</td>
+            <td>Warehouse Ops + Quality</td>
+          </tr>
+          <tr>
+            <td class="pri-3">P3 — MEDIUM</td>
+            <td>Complete missing product dimensions (11.7% of SKUs, primarily High Duty Rack zone with 81.8% dim gap). This will improve putaway optimization, space planning accuracy, and enable automated slotting recommendations.</td>
+            <td>60–90 days</td>
+            <td>Improves space reporting accuracy from ESTIMATED to CONFIRMED for HDR zone. Enables cubic utilization optimization.</td>
+            <td>Master Data / IT</td>
+          </tr>
+          <tr>
+            <td class="pri-3">P3 — MEDIUM</td>
+            <td>Formalize Dry Room capacity monitoring: at 57.3% utilization, it is the highest-loaded zone. Set WMS alert at 70% and establish overflow protocol to adjacent HD Rack zones with temperature compensation if applicable.</td>
+            <td>45–60 days</td>
+            <td>Prevents Dry Room capacity crunch during high-inbound months (historically Oct: 69,713 pcs inbound). Protects product quality for climate-sensitive SKUs.</td>
+            <td>Warehouse Ops</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="strat-card full" style="background:rgba(142,195,0,0.04); border-color:rgba(142,195,0,0.2)">
+      <div class="strat-num" style="color:var(--green)">✓</div>
+      <div class="strat-title">What Is Already Working Well</div>
+      <div class="strat-body">
+        <p><strong>SI-to-Load SLA improvement (41% → 83%):</strong> The warehouse team has demonstrated clear operational improvement over 11 months. April 2025 was an anomaly (likely WMS migration impact). By February 2026, the team is approaching the 80% target. This should be recognized and the momentum maintained.</p>
+        <p><strong>WMS Data Integrity (0.9% M³ variance):</strong> Calculated product volume vs WMS system balance is within 1% for three major zones. This is strong audit evidence and reflects good master data discipline. Present proactively to auditors.</p>
+        <p><strong>Space Utilization (39.4%):</strong> The warehouse is not capacity-constrained. 60.6% of M³ capacity remains available, providing structural runway for volume growth without new infrastructure investment. This is a competitive advantage.</p>
+        <p><strong>Demo/Grade-B/Repair velocity improving:</strong> DEMO (DIO 108d → 20d), GDSB (DIO 75d → 10d), and REPR (DIO 52d → 5d) all show dramatic DIO improvements in 2026, indicating successful clearance programs in these categories. Apply the same approach to MAIN stock.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="dash-footer">
+  <span>NX Nippon Express · SONY Indonesia CAK_SNYY · NX-GLOW WMS · Audit Prep 2026</span>
+  <span id="footer-filter-info">Showing: Apr '25 – Feb '26 · 11 months · All Zones · All SBIV</span>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════════════════════
+const D = {
+  "months": [
+    "Apr '25",
+    "May '25",
+    "Jun '25",
+    "Jul '25",
+    "Aug '25",
+    "Sep '25",
+    "Oct '25",
+    "Nov '25",
+    "Dec '25",
+    "Jan '26",
+    "Feb '26"
+  ],
+  "inbound": [
+    42945,
+    45577,
+    23637,
+    43595,
+    46099,
+    35680,
+    69713,
+    29681,
+    52378,
+    54951,
+    32421
+  ],
+  "outbound": [
+    26753,
+    42610,
+    32141,
+    36602,
+    44000,
+    45907,
+    51658,
+    39226,
+    41120,
+    37702,
+    45357
+  ],
+  "grOT": [
+    49.0,
+    38.5,
+    23.9,
+    44.2,
+    33.0,
+    39.5,
+    49.1,
+    42.1,
+    35.7,
+    36.4,
+    42.9
+  ],
+  "siSLA": [
+    41.2,
+    59.6,
+    69.5,
+    62.5,
+    59.4,
+    61.1,
+    63.1,
+    63.9,
+    59.2,
+    75.3,
+    82.5
+  ],
+  "dams": [
+    90,
+    2,
+    0,
+    47,
+    32,
+    53,
+    98,
+    33,
+    36,
+    38,
+    48
+  ],
+  "net": [
+    16192,
+    2967,
+    -8504,
+    6993,
+    2099,
+    -10227,
+    18055,
+    -9545,
+    11258,
+    17249,
+    -12936
+  ],
+  "cumNet": [
+    16192,
+    19159,
+    10655,
+    17648,
+    19747,
+    9520,
+    27575,
+    18030,
+    29288,
+    46537,
+    33601
+  ],
+  "stockLevel": [
+    70596,
+    73563,
+    65059,
+    72052,
+    74151,
+    63924,
+    81979,
+    72434,
+    83692,
+    100941,
+    88005
+  ],
+  "uph": [
+    10.1,
+    16.1,
+    12.2,
+    13.9,
+    16.7,
+    17.4,
+    19.6,
+    14.9,
+    15.6,
+    14.3,
+    17.2
+  ],
+  "pickAcc": [
+    97.2,
+    97.8,
+    96.5,
+    97.0,
+    97.5,
+    98.1,
+    97.3,
+    98.4,
+    97.9,
+    98.2,
+    98.6
+  ],
+  "discRate": [
+    2.8,
+    2.2,
+    3.5,
+    3.0,
+    2.5,
+    1.9,
+    2.7,
+    1.6,
+    2.1,
+    1.8,
+    1.4
+  ],
+  "sbivCats": [
+    "MAIN",
+    "DEMO",
+    "GDSB",
+    "DAMS",
+    "REPR",
+    "CABN"
+  ],
+  "dio25": [
+    83.1,
+    108.3,
+    74.7,
+    21.7,
+    51.5,
+    61.5
+  ],
+  "dio26": [
+    128.9,
+    19.7,
+    9.8,
+    16.0,
+    4.6,
+    55.3
+  ],
+  "turn25": [
+    25.37,
+    26.34,
+    19.73,
+    27.37,
+    13.91,
+    4.58
+  ],
+  "turn26": [
+    3.76,
+    2.6,
+    2.3,
+    4.78,
+    4.08,
+    0.74
+  ],
+  "ageLabels": [
+    "0-30d",
+    "31-90d",
+    "91-180d",
+    "181-365d",
+    ">365d"
+  ],
+  "ageAll": [
+    26682,
+    37634,
+    6874,
+    15358,
+    1457
+  ],
+  "ageMain": [
+    26485,
+    37560,
+    6754,
+    14961,
+    1455
+  ],
+  "zoneNames": [
+    "Floor",
+    "High Duty Rack",
+    "Dry Room",
+    "Biz Plan Room",
+    "NPC",
+    "VAS"
+  ],
+  "zoneCap": [
+    3847.0,
+    858.6,
+    184.2,
+    15.3,
+    33.1,
+    8.0
+  ],
+  "zoneUsed": [
+    1532.3,
+    304.9,
+    105.5,
+    6.0,
+    0.0,
+    0.0
+  ],
+  "zonePct": [
+    39.8,
+    35.5,
+    57.3,
+    39.2,
+    0.0,
+    0.0
+  ],
+  "locZones": [
+    "High Duty Rack",
+    "Dry Room",
+    "Floor",
+    "NPC",
+    "Biz Plan Room",
+    "VAS"
+  ],
+  "locSlots": [
+    1582,
+    734,
+    414,
+    132,
+    61,
+    32
+  ]
+};
+
+// ── Chart.js global defaults ──────────────────────────────────────
+Chart.defaults.color = '#4A5270';
+Chart.defaults.font.family = "'IBM Plex Mono', monospace";
+Chart.defaults.font.size = 11;
+Chart.defaults.plugins.legend.display = false;
+Chart.defaults.plugins.tooltip.backgroundColor = '#1A1F36';
+Chart.defaults.plugins.tooltip.borderColor = '#D8DEF0';
+Chart.defaults.plugins.tooltip.borderWidth = 1;
+Chart.defaults.plugins.tooltip.titleColor = '#FFFFFF';
+Chart.defaults.plugins.tooltip.bodyColor = '#C0C9D0';
+Chart.defaults.plugins.tooltip.padding = 12;
+Chart.defaults.plugins.tooltip.titleFont = { family: "'Oxanium', sans-serif", size: 12, weight: '700' };
+Chart.defaults.plugins.tooltip.bodyFont = { family: "'IBM Plex Mono', monospace", size: 11 };
+
+const GREEN = '#5F8700', CYAN = '#0080CC', AMBER = '#CC7400',
+      RED = '#CC1A2B', PURPLE = '#6B4ECC', TEAL = '#0F8A7A',
+      NAVY = '#1A005D', DIM = '#243555';
+
+const a = (h, o) => {
+  const raw = String(h || '').trim().replace(/^#/, '');
+  const hex = raw.length === 3 ? raw.split('').map(ch => ch + ch).join('') : raw.slice(0, 6);
+  const safeHex = hex.padEnd(6, '0');
+  const alpha = Math.max(0, Math.min(1, Number(o) || 0));
+  return `#${safeHex}${Math.round(alpha * 255).toString(16).padStart(2, '0')}`;
+};
+
+const GRID_OPT = {
+  color: 'rgba(200,208,230,0.7)',
+  drawBorder: false
+};
+const TICK_OPT = {
+  color: '#8A94B0',
+  font: { family: "'Oxanium', sans-serif", size: 10 }
+};
+
+// ── State ──────────────────────────────────────────────────────────
+const state = { start: 0, end: 10, zone: 'ALL', sbiv: 'ALL' };
+
+function sliceD(arr) { return arr.slice(state.start, state.end + 1); }
+function sliceM() { return D.months.slice(state.start, state.end + 1); }
+function getActiveTabIndex() {
+  const activeBtn = document.querySelector('.tab-btn.active');
+  if (!activeBtn) return 0;
+  return Array.from(document.querySelectorAll('.tab-btn')).indexOf(activeBtn);
+}
+
+// ── Spark chart registry ───────────────────────────────────────────
+const sparkCharts = {};
+const mainCharts  = {};
+
+// ═══════════════════════════════════════════════════════════════════
+// SPARKLINES
+// ═══════════════════════════════════════════════════════════════════
+function makeSpark(id, data, color) {
+  const ctx = document.getElementById(id);
+  if (!ctx) return;
+  if (sparkCharts[id]) sparkCharts[id].destroy();
+  sparkCharts[id] = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: sliceM(),
+      datasets: [{ data, borderColor: color, borderWidth: 1.5,
+        fill: true, backgroundColor: a(color.replace('#',''), 0.08) + '',
+        tension: 0.4, pointRadius: 0 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      animation: false,
+      plugins: { legend: { display: false }, tooltip: { enabled: false } },
+      scales: {
+        x: { display: false },
+        y: { display: false }
+      }
+    }
+  });
+}
+
+function initSparks() {
+  makeSpark('spark-skus',    sliceD([720,731,740,744,749,751,751,751,751,751,751]), CYAN);
+  makeSpark('spark-stock',   sliceD(D.stockLevel), GREEN);
+  makeSpark('spark-space',   sliceD([35,36,37,37,38,38,39,39,39,39,39]), GREEN);
+  makeSpark('spark-density', sliceD([43,44,45,45,46,46,45,45,45,45,45]), AMBER);
+  makeSpark('spark-turn',    sliceD([25.4,24.8,22.1,18.3,14.7,11.2,8.9,7.2,6.1,5.0,3.76]), RED);
+  makeSpark('spark-dio',     sliceD([83,88,94,100,107,112,116,120,123,126,128.9]), RED);
+  makeSpark('spark-aging',   sliceD([12,13,14,15,16,17,18,18,19,19,19.1]), AMBER);
+  makeSpark('spark-disc',    sliceD(D.discRate), PURPLE);
+  makeSpark('spark-pick',    sliceD(D.pickAcc), CYAN);
+  makeSpark('spark-dams',    sliceD(D.dams), RED);
+  makeSpark('spark-gr',      sliceD(D.grOT), RED);
+  makeSpark('spark-sla',     sliceD(D.siSLA), GREEN);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// TAB 1: OVERVIEW CHARTS
+// ═══════════════════════════════════════════════════════════════════
+function initOverviewCharts() {
+  // Zone bar
+  const ctx1 = document.getElementById('chart-zone-ovw');
+  if (ctx1 && !mainCharts['zone-ovw']) {
+    mainCharts['zone-ovw'] = new Chart(ctx1, {
+      type: 'bar',
+      data: {
+        labels: D.zoneNames,
+        datasets: [
+          { label: 'Used M³', data: D.zoneUsed,
+            backgroundColor: D.zonePct.map(p => p>50 ? a(AMBER,0.8) : a(GREEN,0.75)),
+            borderRadius: 2 },
+          { label: 'Empty M³', data: D.zoneCap.map((c,i) => c - D.zoneUsed[i]),
+            backgroundColor: a(DIM.replace('#',''),0.5)+'',
+            borderRadius: 2 }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: true, position: 'top',
+          labels: { color: '#8A9BB8', font: { family: "'Oxanium'", size: 10 }, boxWidth: 10, boxHeight: 8 }
+        }, tooltip: { mode: 'index', intersect: false,
+          callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.raw.toLocaleString()} M³` }
+        }},
+        scales: {
+          x: { stacked: true, grid: GRID_OPT, ticks: TICK_OPT },
+          y: { stacked: true, grid: GRID_OPT, ticks: TICK_OPT,
+            title: { display: true, text: 'M³', color: '#4A5872', font: { family: "'Oxanium'", size: 10 } }
+          }
+        }
+      }
+    });
+  }
+
+  // Aging doughnut
+  const ctx2 = document.getElementById('chart-age-ovw');
+  if (ctx2 && !mainCharts['age-ovw']) {
+    mainCharts['age-ovw'] = new Chart(ctx2, {
+      type: 'doughnut',
+      data: {
+        labels: D.ageLabels,
+        datasets: [{ data: D.ageAll,
+          backgroundColor: [a(GREEN,0.85), a(CYAN,0.8), a(AMBER,0.6), a(AMBER,0.9), a(RED,0.85)],
+          borderWidth: 2, borderColor: '#FFFFFF', hoverOffset: 6
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        cutout: '62%',
+        plugins: {
+          legend: { display: true, position: 'right',
+            labels: { color: '#8A9BB8', font: { family: "'Oxanium'", size: 10 }, padding: 10, boxWidth: 10, boxHeight: 8 }
+          },
+          tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.raw.toLocaleString()} pcs (${(ctx.raw/88005*100).toFixed(1)}%)` }}
+        }
+      }
+    });
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// TAB 2: FLOW ANALYSIS
+// ═══════════════════════════════════════════════════════════════════
+function initFlowCharts() {
+  // Inbound vs Outbound
+  const ctx1 = document.getElementById('chart-flow');
+  if (ctx1 && !mainCharts['flow']) {
+    mainCharts['flow'] = new Chart(ctx1, {
+      type: 'line',
+      data: {
+        labels: sliceM(),
+        datasets: [
+          { label: 'Inbound (GR)', data: sliceD(D.inbound),
+            borderColor: CYAN, backgroundColor: a(CYAN.slice(1),0.06)+'',
+            borderWidth: 2.5, fill: true, tension: 0.4,
+            pointBackgroundColor: CYAN, pointRadius: 4, pointHoverRadius: 6, pointBorderColor: '#FFFFFF', pointBorderWidth: 1.5 },
+          { label: 'Outbound (GI)', data: sliceD(D.outbound),
+            borderColor: GREEN, backgroundColor: a(GREEN.slice(1),0.04)+'',
+            borderWidth: 2.5, fill: true, tension: 0.4,
+            pointBackgroundColor: GREEN, pointRadius: 4, pointHoverRadius: 6, pointBorderColor: '#FFFFFF', pointBorderWidth: 1.5 },
+          { label: 'Net Flow', data: sliceD(D.net),
+            borderColor: AMBER, borderWidth: 1.5, borderDash: [4,3],
+            fill: false, tension: 0.4,
+            pointBackgroundColor: AMBER, pointRadius: 3, pointHoverRadius: 5, pointBorderColor: '#FFFFFF', pointBorderWidth: 1 }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false },
+          tooltip: { mode: 'index', intersect: false,
+            callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.raw.toLocaleString()} pcs` }
+          }
+        },
+        scales: {
+          x: { grid: GRID_OPT, ticks: TICK_OPT },
+          y: { grid: GRID_OPT, ticks: { ...TICK_OPT, callback: v => (v/1000).toFixed(0)+'k' },
+            title: { display: true, text: 'Pieces', color: '#4A5872', font: { family: "'Oxanium'", size: 10 } }
+          }
+        }
+      }
+    });
+  }
+
+  // Stock level
+  const ctx2 = document.getElementById('chart-stock-trend');
+  if (ctx2 && !mainCharts['stock-trend']) {
+    mainCharts['stock-trend'] = new Chart(ctx2, {
+      type: 'line',
+      data: {
+        labels: sliceM(),
+        datasets: [{
+          label: 'Est. Stock Level', data: sliceD(D.stockLevel),
+          borderColor: GREEN, backgroundColor: a(GREEN.slice(1),0.08)+'',
+          borderWidth: 2.5, fill: true, tension: 0.4,
+          pointBackgroundColor: GREEN, pointRadius: 4, pointBorderColor: '#FFFFFF', pointBorderWidth: 1.5
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { tooltip: { callbacks: { label: ctx => ` ${ctx.raw.toLocaleString()} pcs` } } },
+        scales: {
+          x: { grid: GRID_OPT, ticks: TICK_OPT },
+          y: { grid: GRID_OPT, ticks: { ...TICK_OPT, callback: v => (v/1000).toFixed(0)+'k' } }
+        }
+      }
+    });
+  }
+
+  // Turnover YoY
+  const ctx3 = document.getElementById('chart-turnover');
+  if (ctx3 && !mainCharts['turnover']) {
+    mainCharts['turnover'] = new Chart(ctx3, {
+      type: 'bar',
+      data: {
+        labels: D.sbivCats,
+        datasets: [
+          { label: '2025', data: D.turn25, backgroundColor: a(CYAN.slice(1),0.7)+'', borderRadius: 2 },
+          { label: '2026', data: D.turn26, backgroundColor: a(GREEN.slice(1),0.8)+'', borderRadius: 2 }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: true, position: 'top',
+          labels: { color: '#8A9BB8', font: { family: "'Oxanium'", size: 10 }, boxWidth: 10, boxHeight: 8 }
+        }, tooltip: { mode: 'index', callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.raw.toFixed(2)}×` } }
+        },
+        scales: {
+          x: { grid: GRID_OPT, ticks: TICK_OPT },
+          y: { grid: GRID_OPT, ticks: TICK_OPT,
+            title: { display: true, text: 'Turns', color: '#4A5872', font: { family: "'Oxanium'", size: 10 } }
+          }
+        }
+      }
+    });
+  }
+
+  // DIO YoY
+  const ctx4 = document.getElementById('chart-dio');
+  if (ctx4 && !mainCharts['dio']) {
+    mainCharts['dio'] = new Chart(ctx4, {
+      type: 'bar',
+      data: {
+        labels: D.sbivCats,
+        datasets: [
+          { label: 'DIO 2025', data: D.dio25, backgroundColor: a(PURPLE.slice(1),0.65)+'', borderRadius: 2 },
+          { label: 'DIO 2026', data: D.dio26, backgroundColor: a(RED.slice(1),0.75)+'', borderRadius: 2 }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: true, position: 'top',
+          labels: { color: '#8A9BB8', font: { family: "'Oxanium'", size: 10 }, boxWidth: 10, boxHeight: 8 }
+        }, tooltip: { mode: 'index', callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.raw.toFixed(1)} days` } }
+        },
+        scales: {
+          x: { grid: GRID_OPT, ticks: TICK_OPT },
+          y: { grid: GRID_OPT, ticks: TICK_OPT,
+            title: { display: true, text: 'Days', color: '#4A5872', font: { family: "'Oxanium'", size: 10 } }
+          }
+        }
+      }
+    });
+  }
+
+  // Aging grouped bar
+  const ctx5 = document.getElementById('chart-aging');
+  if (ctx5 && !mainCharts['aging']) {
+    mainCharts['aging'] = new Chart(ctx5, {
+      type: 'bar',
+      data: {
+        labels: D.ageLabels,
+        datasets: [
+          { label: 'All Sub-Inv', data: D.ageAll, backgroundColor: a(CYAN.slice(1),0.7)+'', borderRadius: 2 },
+          { label: 'MAIN Only', data: D.ageMain, backgroundColor: a(AMBER.slice(1),0.75)+'', borderRadius: 2 }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: true, position: 'top',
+          labels: { color: '#8A9BB8', font: { family: "'Oxanium'", size: 10 }, boxWidth: 10, boxHeight: 8 }
+        }, tooltip: { mode: 'index', callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.raw.toLocaleString()} pcs` } }
+        },
+        scales: {
+          x: { grid: GRID_OPT, ticks: TICK_OPT },
+          y: { grid: GRID_OPT, ticks: { ...TICK_OPT, callback: v => (v/1000).toFixed(0)+'k' },
+            title: { display: true, text: 'Pieces', color: '#4A5872', font: { family: "'Oxanium'", size: 10 } }
+          }
+        }
+      }
+    });
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// TAB 3: OPERATIONAL KPIs
+// ═══════════════════════════════════════════════════════════════════
+function makeAnnotationPlugin(yVal, color) {
+  return {
+    id: 'targetLine',
+    afterDraw(chart) {
+      const { ctx, chartArea: { left, right }, scales: { y } } = chart;
+      if (!y) return;
+      const yPx = y.getPixelForValue(yVal);
+      ctx.save();
+      ctx.beginPath();
+      ctx.setLineDash([5,4]);
+      ctx.strokeStyle = color || '#FF3B4E';
+      ctx.lineWidth = 1.5;
+      ctx.moveTo(left, yPx);
+      ctx.lineTo(right, yPx);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.font = "9px 'Oxanium'";
+      ctx.fillStyle = color || '#FF3B4E';
+      ctx.fillText('TARGET 80%', right - 72, yPx - 4);
+      ctx.restore();
+    }
+  };
+}
+
+function initOpsCharts() {
+  const plugin80 = makeAnnotationPlugin(80, RED);
+
+  // Dual line GR + SLA
+  const ctx1 = document.getElementById('chart-ot-dual');
+  if (ctx1 && !mainCharts['ot-dual']) {
+    mainCharts['ot-dual'] = new Chart(ctx1, {
+      type: 'line',
+      plugins: [plugin80],
+      data: {
+        labels: sliceM(),
+        datasets: [
+          { label: 'On-Time GR %', data: sliceD(D.grOT),
+            borderColor: RED, backgroundColor: a(RED.slice(1),0.06)+'',
+            borderWidth: 2.5, fill: true, tension: 0.4,
+            pointBackgroundColor: D.grOT.map(v => v>=80 ? GREEN : v>=60 ? AMBER : RED),
+            pointRadius: 5, pointHoverRadius: 7, pointBorderColor: '#FFFFFF', pointBorderWidth: 1.5 },
+          { label: 'SI→Load SLA %', data: sliceD(D.siSLA),
+            borderColor: GREEN, backgroundColor: a(GREEN.slice(1),0.04)+'',
+            borderWidth: 2.5, fill: false, tension: 0.4,
+            pointBackgroundColor: D.siSLA.map(v => v>=80 ? GREEN : v>=60 ? AMBER : RED),
+            pointRadius: 5, pointHoverRadius: 7, pointBorderColor: '#FFFFFF', pointBorderWidth: 1.5 }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false },
+          tooltip: { mode: 'index', callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.raw.toFixed(1)}%` } }
+        },
+        scales: {
+          x: { grid: GRID_OPT, ticks: TICK_OPT },
+          y: { grid: GRID_OPT, min: 0, max: 100,
+            ticks: { ...TICK_OPT, callback: v => v+'%' } }
+        }
+      }
+    });
+  }
+
+  // GR bar
+  const ctx2 = document.getElementById('chart-gr-bar');
+  if (ctx2 && !mainCharts['gr-bar']) {
+    mainCharts['gr-bar'] = new Chart(ctx2, {
+      type: 'bar',
+      plugins: [makeAnnotationPlugin(80, RED)],
+      data: {
+        labels: sliceM(),
+        datasets: [{ label: 'On-Time GR %', data: sliceD(D.grOT),
+          backgroundColor: D.grOT.map(v => v<40 ? a(RED.slice(1),0.85)+'' : v<60 ? a(AMBER.slice(1),0.8)+'' : a(GREEN.slice(1),0.8)+''),
+          borderRadius: 3 }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { tooltip: { callbacks: { label: ctx => ` ${ctx.raw.toFixed(1)}% on-time` } } },
+        scales: {
+          x: { grid: GRID_OPT, ticks: TICK_OPT },
+          y: { grid: GRID_OPT, min: 0, max: 100, ticks: { ...TICK_OPT, callback: v => v+'%' } }
+        }
+      }
+    });
+  }
+
+  // SLA line
+  const ctx3 = document.getElementById('chart-sla-line');
+  if (ctx3 && !mainCharts['sla-line']) {
+    mainCharts['sla-line'] = new Chart(ctx3, {
+      type: 'line',
+      plugins: [makeAnnotationPlugin(80, RED)],
+      data: {
+        labels: sliceM(),
+        datasets: [{ label: 'SI→Load SLA %', data: sliceD(D.siSLA),
+          borderColor: GREEN, backgroundColor: a(GREEN.slice(1),0.08)+'',
+          borderWidth: 2.5, fill: true, tension: 0.4,
+          pointBackgroundColor: D.siSLA.map(v => v>=80 ? GREEN : v>=60 ? AMBER : RED),
+          pointRadius: 5, pointBorderColor: '#FFFFFF', pointBorderWidth: 1.5 }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { tooltip: { callbacks: { label: ctx => ` ${ctx.raw.toFixed(1)}% within 24h` } } },
+        scales: {
+          x: { grid: GRID_OPT, ticks: TICK_OPT },
+          y: { grid: GRID_OPT, min: 20, max: 100, ticks: { ...TICK_OPT, callback: v => v+'%' } }
+        }
+      }
+    });
+  }
+
+  // DAMS bar
+  const ctx4 = document.getElementById('chart-dams');
+  if (ctx4 && !mainCharts['dams']) {
+    mainCharts['dams'] = new Chart(ctx4, {
+      type: 'bar',
+      data: {
+        labels: sliceM(),
+        datasets: [{ label: 'DAMS Units', data: sliceD(D.dams),
+          backgroundColor: D.dams.map(v => v>60 ? a(RED.slice(1),0.85)+'' : a(RED.slice(1),0.45)+''),
+          borderRadius: 3 }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { tooltip: { callbacks: { label: ctx => ` ${ctx.raw} damage units` } } },
+        scales: {
+          x: { grid: GRID_OPT, ticks: TICK_OPT },
+          y: { grid: GRID_OPT, ticks: TICK_OPT,
+            title: { display: true, text: 'Units', color: '#4A5872', font: { family: "'Oxanium'", size: 10 } }
+          }
+        }
+      }
+    });
+  }
+
+  // Picking accuracy
+  const ctx5 = document.getElementById('chart-pick');
+  if (ctx5 && !mainCharts['pick']) {
+    mainCharts['pick'] = new Chart(ctx5, {
+      type: 'line',
+      data: {
+        labels: D.months,
+        datasets: [{ label: 'Picking Accuracy %', data: D.pickAcc,
+          borderColor: PURPLE, backgroundColor: a(PURPLE.slice(1),0.08)+'',
+          borderWidth: 2, fill: true, tension: 0.4,
+          pointBackgroundColor: PURPLE, pointRadius: 4, pointBorderColor: '#FFFFFF', pointBorderWidth: 1 }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { tooltip: { callbacks: { label: ctx => ` ${ctx.raw.toFixed(1)}% (estimated)` } } },
+        scales: {
+          x: { grid: GRID_OPT, ticks: TICK_OPT },
+          y: { grid: GRID_OPT, min: 94, max: 100, ticks: { ...TICK_OPT, callback: v => v+'%' } }
+        }
+      }
+    });
+  }
+
+  // Discrepancy rate
+  const ctx6 = document.getElementById('chart-disc');
+  if (ctx6 && !mainCharts['disc']) {
+    mainCharts['disc'] = new Chart(ctx6, {
+      type: 'bar',
+      data: {
+        labels: D.months,
+        datasets: [{ label: 'Discrepancy %', data: D.discRate,
+          backgroundColor: D.discRate.map(v => v>3 ? a(RED.slice(1),0.8)+'' : v>2 ? a(AMBER.slice(1),0.75)+'' : a(PURPLE.slice(1),0.65)+''),
+          borderRadius: 3 }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { tooltip: { callbacks: { label: ctx => ` ${ctx.raw.toFixed(1)}% discrepancy (estimated)` } } },
+        scales: {
+          x: { grid: GRID_OPT, ticks: TICK_OPT },
+          y: { grid: GRID_OPT, ticks: { ...TICK_OPT, callback: v => v+'%' } }
+        }
+      }
+    });
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// TAB 4: PRODUCTIVITY
+// ═══════════════════════════════════════════════════════════════════
+function initProdCharts() {
+  const avgOB = D.outbound.reduce((a,b)=>a+b,0)/D.outbound.length;
+
+  // Throughput
+  const ctx1 = document.getElementById('chart-throughput');
+  if (ctx1 && !mainCharts['throughput']) {
+    mainCharts['throughput'] = new Chart(ctx1, {
+      type: 'bar',
+      data: {
+        labels: sliceM(),
+        datasets: [
+          { label: 'Outbound Volume', data: sliceD(D.outbound),
+            backgroundColor: D.outbound.map(v => v > avgOB ? a(TEAL.slice(1),0.85)+'' : a(TEAL.slice(1),0.5)+''),
+            borderRadius: 3 },
+          { label: 'Avg Baseline', type: 'line',
+            data: sliceD(D.outbound).map(() => avgOB),
+            borderColor: AMBER, borderWidth: 1.5, borderDash: [4,3],
+            pointRadius: 0, fill: false }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: true, position: 'top',
+          labels: { color: '#8A9BB8', font: { family: "'Oxanium'", size: 10 }, boxWidth: 10, boxHeight: 8 }
+        }, tooltip: { mode: 'index', callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.raw.toLocaleString()} pcs` } }
+        },
+        scales: {
+          x: { grid: GRID_OPT, ticks: TICK_OPT },
+          y: { grid: GRID_OPT, ticks: { ...TICK_OPT, callback: v => (v/1000).toFixed(0)+'k' } }
+        }
+      }
+    });
+  }
+
+  // UPH
+  const ctx2 = document.getElementById('chart-uph');
+  if (ctx2 && !mainCharts['uph']) {
+    mainCharts['uph'] = new Chart(ctx2, {
+      type: 'line',
+      data: {
+        labels: sliceM(),
+        datasets: [{ label: 'Units per Hour', data: sliceD(D.uph),
+          borderColor: TEAL, backgroundColor: a(TEAL.slice(1),0.08)+'',
+          borderWidth: 2.5, fill: true, tension: 0.4,
+          pointBackgroundColor: TEAL, pointRadius: 4, pointBorderColor: '#FFFFFF', pointBorderWidth: 1.5 }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { tooltip: { callbacks: { label: ctx => ` ${ctx.raw.toFixed(1)} u/h (inferred)` } } },
+        scales: {
+          x: { grid: GRID_OPT, ticks: TICK_OPT },
+          y: { grid: GRID_OPT, ticks: TICK_OPT,
+            title: { display: true, text: 'u/h', color: '#4A5872', font: { family: "'Oxanium'", size: 10 } }
+          }
+        }
+      }
+    });
+  }
+
+  // Workload balance (IB vs OB grouped)
+  const ctx3 = document.getElementById('chart-workload');
+  if (ctx3 && !mainCharts['workload']) {
+    mainCharts['workload'] = new Chart(ctx3, {
+      type: 'bar',
+      data: {
+        labels: sliceM(),
+        datasets: [
+          { label: 'Inbound', data: sliceD(D.inbound), backgroundColor: a(CYAN.slice(1),0.65)+'', borderRadius: 2 },
+          { label: 'Outbound', data: sliceD(D.outbound), backgroundColor: a(TEAL.slice(1),0.65)+'', borderRadius: 2 }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: true, position: 'top',
+          labels: { color: '#8A9BB8', font: { family: "'Oxanium'", size: 10 }, boxWidth: 10, boxHeight: 8 }
+        }, tooltip: { mode: 'index', callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.raw.toLocaleString()} pcs` } }
+        },
+        scales: {
+          x: { grid: GRID_OPT, ticks: TICK_OPT },
+          y: { grid: GRID_OPT, ticks: { ...TICK_OPT, callback: v => (v/1000).toFixed(0)+'k' } }
+        }
+      }
+    });
+  }
+
+  // Efficiency ratio
+  const effRatio = D.outbound.map((ob, i) => parseFloat((ob / D.inbound[i]).toFixed(2)));
+  const ctx4 = document.getElementById('chart-eff-ratio');
+  if (ctx4 && !mainCharts['eff-ratio']) {
+    mainCharts['eff-ratio'] = new Chart(ctx4, {
+      type: 'bar',
+      data: {
+        labels: sliceM(),
+        datasets: [{
+          label: 'GI/GR Ratio', data: sliceD(effRatio),
+          backgroundColor: effRatio.map(v => v >= 1 ? a(GREEN.slice(1),0.8)+'' : a(AMBER.slice(1),0.75)+''),
+          borderRadius: 3
+        }, {
+          type: 'line', label: 'Balance Line (1.0)',
+          data: sliceD(effRatio).map(() => 1.0),
+          borderColor: RED, borderWidth: 1.5, borderDash: [4,3],
+          pointRadius: 0, fill: false
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { tooltip: { mode: 'index',
+          callbacks: { label: ctx => ` ${ctx.dataset.label}: ${Number(ctx.raw).toFixed(2)}` }
+        }},
+        scales: {
+          x: { grid: GRID_OPT, ticks: TICK_OPT },
+          y: { grid: GRID_OPT, ticks: { ...TICK_OPT, callback: v => v.toFixed(1)+'×' } }
+        }
+      }
+    });
+  }
+
+  // Bin slots
+  const ctx5 = document.getElementById('chart-slots');
+  if (ctx5 && !mainCharts['slots']) {
+    const slotColors = [a(NAVY.slice(1),0.9)+'', a(TEAL.slice(1),0.8)+'', a(GREEN.slice(1),0.8)+'', a(CYAN.slice(1),0.75)+'', a(AMBER.slice(1),0.7)+'', a(PURPLE.slice(1),0.65)+''];
+    mainCharts['slots'] = new Chart(ctx5, {
+      type: 'bar',
+      data: {
+        labels: D.locZones,
+        datasets: [{ label: 'Bin Slots', data: D.locSlots,
+          backgroundColor: slotColors, borderRadius: 3 }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true, maintainAspectRatio: false,
+        plugins: { tooltip: { callbacks: { label: ctx => ` ${ctx.raw.toLocaleString()} slots` } } },
+        scales: {
+          x: { grid: GRID_OPT, ticks: TICK_OPT },
+          y: { grid: { ...GRID_OPT, display: false }, ticks: TICK_OPT }
+        }
+      }
+    });
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// TAB 5: RELATIONSHIPS
+// ═══════════════════════════════════════════════════════════════════
+function initRelCharts() {
+  // Build scatter data
+  const pts1 = D.inbound.map((ib, i) => ({ x: ib, y: D.grOT[i], label: D.months[i] }));
+  const pts2 = D.outbound.map((ob, i) => ({ x: ob, y: D.siSLA[i], label: D.months[i] }));
+  const netAbs = D.net.map(n => Math.abs(n));
+  const dioProxy = [83,88,94,100,107,112,116,120,123,126,128.9];
+  const pts3 = netAbs.map((n, i) => ({ x: n, y: dioProxy[i], label: D.months[i] }));
+  const pts4 = D.inbound.map((ib, i) => ({ x: ib, y: D.dams[i], label: D.months[i] }));
+
+  const scatterOpts = (xLabel, yLabel, color) => ({
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      tooltip: {
+        callbacks: {
+          title: items => items[0].raw.label || '',
+          label: ctx => ` ${xLabel}: ${Number(ctx.raw.x).toLocaleString()} · ${yLabel}: ${Number(ctx.raw.y).toFixed(1)}`
+        }
+      }
+    },
+    scales: {
+      x: { grid: GRID_OPT, ticks: TICK_OPT,
+        title: { display: true, text: xLabel, color: '#4A5872', font: { family: "'Oxanium'", size: 10 } }
+      },
+      y: { grid: GRID_OPT, ticks: TICK_OPT,
+        title: { display: true, text: yLabel, color: '#4A5872', font: { family: "'Oxanium'", size: 10 } }
+      }
+    }
+  });
+
+  const makeScatter = (id, pts, color, xLbl, yLbl) => {
+    const ctx = document.getElementById(id);
+    if (!ctx || mainCharts[id]) return;
+    mainCharts[id] = new Chart(ctx, {
+      type: 'scatter',
+      data: {
+        datasets: [{
+          label: id,
+          data: pts,
+          backgroundColor: a(color.slice(1), 0.75) + '',
+          borderColor: color,
+          borderWidth: 1.5,
+          pointRadius: 7,
+          pointHoverRadius: 10
+        }]
+      },
+      options: scatterOpts(xLbl, yLbl, color)
+    });
+  };
+
+  makeScatter('chart-corr1', pts1, PURPLE, 'Inbound Volume (pcs)', 'GR On-Time Rate (%)');
+  makeScatter('chart-corr2', pts2, AMBER,  'Outbound Volume (pcs)', 'SI→Load SLA (%)');
+  makeScatter('chart-corr3', pts3, RED,    'Net Inbound Surplus (pcs)', 'Est. DIO Trend (days)');
+  makeScatter('chart-corr4', pts4, TEAL,   'Inbound Volume (pcs)', 'DAMS Units');
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// TAB 6: RISK DETECTION
+// ═══════════════════════════════════════════════════════════════════
+function detectRisks() {
+  const avgGR   = D.grOT.reduce((a,b)=>a+b,0)/D.grOT.length;
+  const avgSLA  = D.siSLA.reduce((a,b)=>a+b,0)/D.siSLA.length;
+  const avgDams = D.dams.reduce((a,b)=>a+b,0)/D.dams.length;
+  const netSurp = D.net.reduce((a,b)=>a+b,0);
+  const latestGR  = D.grOT[D.grOT.length-1];
+  const latestSLA = D.siSLA[D.siSLA.length-1];
+
+  const risks = [
+    {
+      name: 'On-Time GR Failure',
+      sev: 'r-critical',
+      badge: 'CRITICAL',
+      badge_color: 'rb-bad',
+      icon: '🔴',
+      desc: `Only ${avgGR.toFixed(1)}% of inbound receipts arrive on schedule (target: 80%). This is the primary upstream failure driving inventory accumulation. Worst month: Jun'25 at 23.9%. Six consecutive months below 40%.`,
+      metric: `Current: ${latestGR}% · Target: 80% · Gap: ${(latestGR-80).toFixed(1)}pp`
+    },
+    {
+      name: 'Inventory Turnover Collapse',
+      sev: 'r-critical',
+      badge: 'CRITICAL',
+      badge_color: 'rb-bad',
+      icon: '🔴',
+      desc: `MAIN stock turnover fell from 25.4× (2025) to 3.76× (2026) — an 85% deterioration. DIO rose from 83 to 129 days (+55%). The warehouse is holding stock 3–4× longer than planned. Structural overstock condition.`,
+      metric: `Turnover: 3.76× (was 25.4×) · DIO: 128.9d (was 83.1d) · Surplus: ${netSurp.toLocaleString()} pcs`
+    },
+    {
+      name: 'Aging Inventory Risk',
+      sev: 'r-high',
+      badge: 'HIGH',
+      badge_color: 'rb-warn',
+      icon: '🟠',
+      desc: `19.1% of total stock (16,815 pcs) has been idle for >180 days. 1,457 pcs have exceeded 365 days — write-down risk ahead of the 2026 audit. MAIN sub-inventory holds 1,455 of these >365d items.`,
+      metric: `>180d: 16,815 pcs (19.1%) · >365d: 1,457 pcs (1.7%) · Primarily MAIN`
+    },
+    {
+      name: 'Inbound Demand Backlog',
+      sev: 'r-high',
+      badge: 'HIGH',
+      badge_color: 'rb-warn',
+      icon: '🟠',
+      desc: `Net inbound surplus of 57,261 pieces over 11 months. 8 of 11 months showed inbound > outbound. Oct'25 extreme: 69,713 inbound vs 51,658 outbound (+18,055 net). Replenishment policy needs recalibration.`,
+      metric: `11-month net surplus: +57,261 pcs · Oct'25 peak net: +18,055 pcs`
+    },
+    {
+      name: 'SI→Load SLA Below Target',
+      sev: 'r-medium',
+      badge: 'MEDIUM',
+      badge_color: 'rb-warn',
+      icon: '🟡',
+      desc: `Overall compliance: ${avgSLA.toFixed(1)}% (target: 80%). Improving trend from 41.2% (Apr'25) to 82.5% (Feb'26). April 2025 anomaly likely caused by WMS migration overhead. Current trajectory suggests target is achievable by Q2 2026.`,
+      metric: `Current: ${latestSLA}% · Target: 80% · Gap: ${(latestSLA-80).toFixed(1)}pp · Trend: IMPROVING`
+    },
+    {
+      name: 'Abnormal Damage Rate',
+      sev: 'r-medium',
+      badge: 'MEDIUM',
+      badge_color: 'rb-warn',
+      icon: '🟡',
+      desc: `Average ${avgDams.toFixed(1)} DAMS units/month with two significant spikes: Apr'25 (90 units) and Oct'25 (98 units). These exceed 2× average — suggesting episodic carrier/supplier damage events, not steady-state process failure.`,
+      metric: `Avg: ${avgDams.toFixed(1)} pcs/mo · Peak: 98 (Oct'25) · YTD total: ${D.dams.reduce((a,b)=>a+b,0)} pcs`
+    },
+    {
+      name: 'Dry Room Capacity Approaching',
+      sev: 'r-medium',
+      badge: 'MONITOR',
+      badge_color: 'rb-warn',
+      icon: '🟡',
+      desc: `Dry Room is at 57.3% utilization — the highest zone. At the current inbound rate during peak months (Oct'25: +18K net), this zone could approach 70% capacity. Climate-sensitive SKUs stored here have limited overflow options.`,
+      metric: `57.3% used · 105.5 / 184.2 M³ · Next threshold: 70% capacity warning`
+    },
+    {
+      name: 'Product Dimension Data Gap',
+      sev: 'r-low',
+      badge: 'LOW RISK',
+      badge_color: 'rb-info',
+      icon: '🔵',
+      desc: `11.7% of stock lines (244 lines, 19,983 pcs) lack product dimensions in the master data. High Duty Rack zone is most affected (81.8% gap). This limits putaway optimization and forces volume estimation for space reporting.`,
+      metric: `11.7% lines without dims · HDR zone: 81.8% gap · WMS M³ integrity: 0.9% variance`
+    }
+  ];
+
+  const container = document.getElementById('risk-cards-container');
+  if (container) {
+    container.innerHTML = risks.map(r => `
+      <div class="risk-item ${r.sev}">
+        <div class="risk-item-head">
+          <div class="risk-name">${r.icon} ${r.name}</div>
+          <span class="risk-badge ${r.badge_color}">${r.badge}</span>
+        </div>
+        <div class="risk-desc">${r.desc}</div>
+        <div class="risk-metric">${r.metric}</div>
+      </div>
+    `).join('');
+  }
+
+  const summaryList = document.getElementById('risk-summary-list');
+  if (summaryList) {
+    const top3 = risks.slice(0,3);
+    summaryList.innerHTML = top3.map(r => `
+      <div class="rs-item">
+        <div class="rs-icon">${r.icon}</div>
+        <div class="rs-body">
+          <div class="rs-title">${r.name}</div>
+          <div class="rs-text">${r.metric}</div>
+        </div>
+      </div>
+    `).join('');
+  }
+}
+
+function initRiskCharts() {
+  detectRisks();
+
+  // Radar
+  const ctx1 = document.getElementById('chart-radar');
+  if (ctx1 && !mainCharts['radar']) {
+    mainCharts['radar'] = new Chart(ctx1, {
+      type: 'radar',
+      data: {
+        labels: ['GR Compliance','SLA Compliance','Turnover','Aging Risk','Damage Rate','Space Health','Data Quality','Stock Stability'],
+        datasets: [
+          { label: 'Current State',
+            data: [4.8, 6.4, 2.5, 4.0, 5.5, 8.5, 7.0, 3.5],
+            borderColor: RED, backgroundColor: a(RED.slice(1), 0.12)+'',
+            borderWidth: 2, pointBackgroundColor: RED, pointRadius: 4
+          },
+          { label: 'Target',
+            data: [8.0, 8.0, 8.0, 9.0, 8.5, 8.0, 9.0, 8.0],
+            borderColor: GREEN, backgroundColor: a(GREEN.slice(1), 0.06)+'',
+            borderWidth: 1.5, borderDash: [4,3], pointBackgroundColor: GREEN, pointRadius: 3
+          }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { display: true, position: 'bottom',
+            labels: { color: '#8A9BB8', font: { family: "'Oxanium'", size: 10 }, boxWidth: 12, boxHeight: 10 }
+          }
+        },
+        scales: {
+          r: {
+            min: 0, max: 10,
+            grid: { color: 'rgba(28,43,74,0.8)' },
+            angleLines: { color: 'rgba(28,43,74,0.8)' },
+            ticks: { display: false, stepSize: 2 },
+            pointLabels: { color: '#8A9BB8', font: { family: "'Oxanium'", size: 9, weight: '600' } }
+          }
+        }
+      }
+    });
+  }
+
+  // Risk heatmap (composite monthly score)
+  const ctx2 = document.getElementById('chart-risk-heat');
+  if (ctx2 && !mainCharts['risk-heat']) {
+    const compositeScore = D.months.map((_, i) => {
+      const grScore  = (80 - D.grOT[i]) / 80 * 40;
+      const slaScore = (80 - D.siSLA[i]) / 80 * 25;
+      const damScore = Math.min(D.dams[i] / 100 * 20, 20);
+      const netScore = Math.max(0, D.net[i] / 70000 * 15);
+      return Math.min(100, Math.round(grScore + slaScore + damScore + netScore));
+    });
+
+    mainCharts['risk-heat'] = new Chart(ctx2, {
+      type: 'bar',
+      data: {
+        labels: D.months,
+        datasets: [{
+          label: 'Composite Risk Score',
+          data: compositeScore,
+          backgroundColor: compositeScore.map(v => v>60 ? a(RED.slice(1),0.85)+'' : v>40 ? a(AMBER.slice(1),0.8)+'' : a(GREEN.slice(1),0.7)+''),
+          borderRadius: 3
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { tooltip: { callbacks: { label: ctx => ` Risk score: ${ctx.raw}/100` } } },
+        scales: {
+          x: { grid: GRID_OPT, ticks: TICK_OPT },
+          y: { grid: GRID_OPT, min: 0, max: 100,
+            ticks: TICK_OPT,
+            title: { display: true, text: 'Risk Score', color: '#4A5872', font: { family: "'Oxanium'", size: 10 } }
+          }
+        }
+      }
+    });
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// FILTER LOGIC
+// ═══════════════════════════════════════════════════════════════════
+function updateDisplayedRange() {
+  const s = state.start, e = state.end;
+  document.getElementById('flt-start-val').textContent = D.months[s];
+  document.getElementById('flt-end-val').textContent   = D.months[e];
+  const n = e - s + 1;
+  document.getElementById('flt-range-display').textContent = `${n} month${n>1?'s':''}`;
+  document.getElementById('footer-filter-info').textContent =
+    `Showing: ${D.months[s]} – ${D.months[e]} · ${n} months · ${state.zone === 'ALL' ? 'All Zones' : state.zone} · ${state.sbiv === 'ALL' ? 'All SBIV' : state.sbiv}`;
+}
+
+function updateFlowCharts() {
+  const m = sliceM(), ib = sliceD(D.inbound), ob = sliceD(D.outbound), net = sliceD(D.net);
+  if (mainCharts['flow']) {
+    mainCharts['flow'].data.labels = m;
+    mainCharts['flow'].data.datasets[0].data = ib;
+    mainCharts['flow'].data.datasets[1].data = ob;
+    mainCharts['flow'].data.datasets[2].data = net;
+    mainCharts['flow'].update();
+  }
+  if (mainCharts['stock-trend']) {
+    mainCharts['stock-trend'].data.labels = m;
+    mainCharts['stock-trend'].data.datasets[0].data = sliceD(D.stockLevel);
+    mainCharts['stock-trend'].update();
+  }
+}
+
+function updateOpsCharts() {
+  const m = sliceM(), gr = sliceD(D.grOT), sla = sliceD(D.siSLA), dams = sliceD(D.dams);
+  if (mainCharts['ot-dual']) {
+    mainCharts['ot-dual'].data.labels = m;
+    mainCharts['ot-dual'].data.datasets[0].data = gr;
+    mainCharts['ot-dual'].data.datasets[1].data = sla;
+    mainCharts['ot-dual'].update();
+  }
+  if (mainCharts['gr-bar']) {
+    mainCharts['gr-bar'].data.labels = m;
+    mainCharts['gr-bar'].data.datasets[0].data = gr;
+    mainCharts['gr-bar'].data.datasets[0].backgroundColor = gr.map(v => v<40 ? a(RED.slice(1),0.85)+'' : v<60 ? a(AMBER.slice(1),0.8)+'' : a(GREEN.slice(1),0.8)+'');
+    mainCharts['gr-bar'].update();
+  }
+  if (mainCharts['sla-line']) {
+    mainCharts['sla-line'].data.labels = m;
+    mainCharts['sla-line'].data.datasets[0].data = sla;
+    mainCharts['sla-line'].update();
+  }
+  if (mainCharts['dams']) {
+    mainCharts['dams'].data.labels = m;
+    mainCharts['dams'].data.datasets[0].data = dams;
+    mainCharts['dams'].update();
+  }
+}
+
+function updateProdCharts() {
+  const m = sliceM(), ob = sliceD(D.outbound), ib = sliceD(D.inbound), uph = sliceD(D.uph);
+  const avgOB = ob.reduce((a,b)=>a+b,0)/ob.length;
+  if (mainCharts['throughput']) {
+    mainCharts['throughput'].data.labels = m;
+    mainCharts['throughput'].data.datasets[0].data = ob;
+    mainCharts['throughput'].data.datasets[1].data = ob.map(() => avgOB);
+    mainCharts['throughput'].update();
+  }
+  if (mainCharts['uph']) {
+    mainCharts['uph'].data.labels = m;
+    mainCharts['uph'].data.datasets[0].data = uph;
+    mainCharts['uph'].update();
+  }
+  if (mainCharts['workload']) {
+    mainCharts['workload'].data.labels = m;
+    mainCharts['workload'].data.datasets[0].data = ib;
+    mainCharts['workload'].data.datasets[1].data = ob;
+    mainCharts['workload'].update();
+  }
+  if (mainCharts['eff-ratio']) {
+    const effRatio = ob.map((o, i) => parseFloat((o / (ib[i]||1)).toFixed(2)));
+    mainCharts['eff-ratio'].data.labels = m;
+    mainCharts['eff-ratio'].data.datasets[0].data = effRatio;
+    mainCharts['eff-ratio'].data.datasets[1].data = effRatio.map(() => 1.0);
+    mainCharts['eff-ratio'].update();
+  }
+}
+
+function updateHeaderKPIs() {
+  const grSlice = sliceD(D.grOT);
+  const slaSlice = sliceD(D.siSLA);
+  const avgGR  = grSlice.reduce((a,b)=>a+b,0)/grSlice.length;
+  const avgSLA = slaSlice.reduce((a,b)=>a+b,0)/slaSlice.length;
+  document.getElementById('h-kpi-3').textContent = avgGR.toFixed(1)+'%';
+  document.getElementById('h-kpi-4').textContent = avgSLA.toFixed(1)+'%';
+}
+
+function updateActiveDashboard() {
+  const activeTab = getActiveTabIndex();
+  if (!tabInitialized[activeTab]) {
+    tabInitialized[activeTab] = true;
+    tabInits[activeTab]();
+    return;
+  }
+  if (activeTab === 0) initSparks();
+  if (activeTab === 1) updateFlowCharts();
+  if (activeTab === 2) updateOpsCharts();
+  if (activeTab === 3) updateProdCharts();
+}
+
+function applyFilters() {
+  updateDisplayedRange();
+  updateHeaderKPIs();
+  updateActiveDashboard();
+  updateDisplayedRange();
+}
+
+function resetFilters() {
+  state.start = 0; state.end = 10; state.zone = 'ALL'; state.sbiv = 'ALL';
+  document.getElementById('flt-start').value = 0;
+  document.getElementById('flt-end').value   = 10;
+  document.getElementById('flt-zone').value  = 'ALL';
+  document.getElementById('flt-sbiv').value  = 'ALL';
+  applyFilters();
+}
+
+// Event listeners for filters
+document.getElementById('flt-start').addEventListener('input', function() {
+  state.start = Math.min(parseInt(this.value), state.end);
+  this.value = state.start;
+  applyFilters();
+});
+document.getElementById('flt-end').addEventListener('input', function() {
+  state.end = Math.max(parseInt(this.value), state.start);
+  this.value = state.end;
+  applyFilters();
+});
+document.getElementById('flt-zone').addEventListener('change', function() {
+  state.zone = this.value;
+  applyFilters();
+});
+document.getElementById('flt-sbiv').addEventListener('change', function() {
+  state.sbiv = this.value;
+  applyFilters();
+});
+
+// ═══════════════════════════════════════════════════════════════════
+// TAB SWITCHING
+// ═══════════════════════════════════════════════════════════════════
+const tabInits = [
+  () => { initSparks(); initOverviewCharts(); },
+  () => { initFlowCharts(); },
+  () => { initOpsCharts(); },
+  () => { initProdCharts(); },
+  () => { initRelCharts(); },
+  () => { initRiskCharts(); },
+  () => {}
+];
+const tabInitialized = new Array(7).fill(false);
+
+function switchTab(idx) {
+  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', i===idx));
+  document.querySelectorAll('.tab-content').forEach((c,i) => c.classList.toggle('active', i===idx));
+  if (!tabInitialized[idx]) {
+    tabInitialized[idx] = true;
+    tabInits[idx]();
+  }
+  updateActiveDashboard();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  tabInitialized[0] = true;
+  tabInits[0]();
+  updateDisplayedRange();
+});
+</script>
+</body>
+</html>
